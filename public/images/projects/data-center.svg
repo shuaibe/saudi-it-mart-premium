@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img" aria-label="Data center project illustration">
+  <rect width="900" height="620" fill="#E9EFE4"/>
+  <rect x="120" y="150" width="660" height="300" rx="28" fill="#F7F7F4"/>
+  <g fill="#0F1720">
+    <rect x="180" y="210" width="120" height="170" rx="18"/>
+    <rect x="330" y="210" width="120" height="170" rx="18"/>
+    <rect x="480" y="210" width="120" height="170" rx="18"/>
+    <rect x="630" y="210" width="90" height="170" rx="18"/>
+  </g>
+  <g fill="#AEEB66">
+    <rect x="200" y="235" width="80" height="16" rx="8"/>
+    <rect x="350" y="235" width="80" height="16" rx="8"/>
+    <rect x="500" y="235" width="80" height="16" rx="8"/>
+    <rect x="646" y="235" width="58" height="16" rx="8"/>
+  </g>
+  <path d="M170 490h560" stroke="#0F1720" stroke-width="20" stroke-linecap="round" opacity="0.75"/>
+</svg>

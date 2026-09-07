@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Skilled manpower illustration">
+  <rect width="800" height="520" fill="#E9EFE4"/>
+  <rect x="80" y="130" width="640" height="260" rx="30" fill="#F7F7F4"/>
+  <circle cx="220" cy="220" r="60" fill="#0F1720"/>
+  <circle cx="220" cy="190" r="26" fill="#F7F7F4"/>
+  <rect x="170" y="245" width="100" height="90" rx="18" fill="#AEEB66"/>
+  <circle cx="430" cy="220" r="60" fill="#0F1720"/>
+  <circle cx="430" cy="190" r="26" fill="#F7F7F4"/>
+  <rect x="380" y="245" width="100" height="90" rx="18" fill="#AEEB66"/>
+  <circle cx="620" cy="220" r="60" fill="#0F1720"/>
+  <circle cx="620" cy="190" r="26" fill="#F7F7F4"/>
+  <rect x="570" y="245" width="100" height="90" rx="18" fill="#AEEB66"/>
+</svg>

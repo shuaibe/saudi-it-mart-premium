@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img" aria-label="Hotel project illustration">
+  <rect width="900" height="620" fill="#E9EFE4"/>
+  <rect x="100" y="140" width="700" height="340" rx="28" fill="#F7F7F4"/>
+  <rect x="180" y="210" width="160" height="220" rx="22" fill="#0F1720"/>
+  <rect x="380" y="180" width="150" height="250" rx="22" fill="#AEEB66"/>
+  <rect x="570" y="210" width="150" height="220" rx="22" fill="#0F1720"/>
+  <path d="M260 238c25-32 58-48 96-48 41 0 75 18 100 52" fill="none" stroke="#AEEB66" stroke-width="18" stroke-linecap="round"/>
+  <path d="M430 225h74M430 270h96M430 315h110" stroke="#0F1720" stroke-width="16" stroke-linecap="round"/>
+</svg>

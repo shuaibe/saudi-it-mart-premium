@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Structured cabling illustration">
+  <rect width="800" height="520" fill="#E9EFE4"/>
+  <rect x="90" y="120" width="620" height="270" rx="28" fill="#F7F7F4"/>
+  <g stroke="#0F1720" stroke-width="12" stroke-linecap="round" opacity="0.8">
+    <path d="M180 150v210M260 150v210M340 150v210M420 150v210M500 150v210M580 150v210"/>
+  </g>
+  <g stroke="#AEEB66" stroke-width="16" stroke-linecap="round">
+    <path d="M150 180h500M150 240h500M150 300h500"/>
+  </g>
+  <rect x="270" y="80" width="260" height="80" rx="18" fill="#AEEB66"/>
+  <text x="400" y="130" text-anchor="middle" font-size="36" font-family="Arial, sans-serif" font-weight="700" fill="#0F1720">CAT6</text>
+</svg>

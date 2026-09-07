@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img" aria-label="Corporate office project illustration">
+  <rect width="900" height="620" fill="#E9EFE4"/>
+  <rect x="120" y="120" width="660" height="380" rx="30" fill="#F7F7F4"/>
+  <g fill="#0F1720">
+    <rect x="180" y="210" width="140" height="200" rx="20"/>
+    <rect x="360" y="170" width="170" height="240" rx="20"/>
+    <rect x="570" y="210" width="120" height="200" rx="20"/>
+  </g>
+  <g fill="#AEEB66">
+    <rect x="210" y="250" width="80" height="16" rx="8"/>
+    <rect x="397" y="210" width="96" height="16" rx="8"/>
+    <rect x="595" y="255" width="70" height="16" rx="8"/>
+  </g>
+  <circle cx="435" cy="280" r="64" fill="#AEEB66"/>
+</svg>

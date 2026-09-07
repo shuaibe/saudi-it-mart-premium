@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Saudi IT Mart logo">
+  <rect width="200" height="200" rx="34" fill="#0F1720"/>
+  <rect x="40" y="28" width="120" height="120" rx="18" fill="#AEEB66" opacity="0.88"/>
+  <path d="M62 96 L100 52 L138 96 V130 H62 Z" fill="#0F1720" opacity="0.9"/>
+  <circle cx="100" cy="95" r="22" fill="#F7F7F4"/>
+  <path d="M87 95h26M100 82v26" stroke="#0F1720" stroke-width="7" stroke-linecap="round"/>
+  <rect x="52" y="138" width="96" height="22" rx="11" fill="#F7F7F4"/>
+  <text x="100" y="152" text-anchor="middle" font-size="14" font-family="Arial, sans-serif" font-weight="700" fill="#0F1720">SITM</text>
+</svg>
