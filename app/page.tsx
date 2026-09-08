@@ -9,7 +9,7 @@ type Service = {
   title: string;
   category: string;
   description: string;
-  serial: string;
+  serial?: string;
   image: string;
   tag?: string;
   detail: string;
@@ -52,6 +52,7 @@ const serviceCategories = [
   "Network",
   "Access Control",
   "Manpower Supply",
+  "Power Supply",
 ];
 
 const services: Service[] = [
@@ -112,6 +113,59 @@ const services: Service[] = [
       "Project-based deployment of technical manpower for ELV, ICT, and telecom execution, with trained teams ready for installation, testing, and commissioning support.",
   },
 ];
+
+const powerSupplyServices: Service[] = [
+  {
+    title: "UPS Systems",
+    category: "Power Supply",
+    description: "Online UPS / Backup Power / Critical Load Protection",
+    image: "/images/services/data-center-riyadh.jpg",
+    detail:
+      "Online UPS systems that protect critical loads from outages, voltage disturbances, and power interruptions while supporting dependable infrastructure operation.",
+  },
+  {
+    title: "DC Power Systems",
+    category: "Power Supply",
+    description: "DC Power / Rectifier / Battery Backup Solutions",
+    image: "/images/services/network-wifi.jpg",
+    detail:
+      "DC power systems with rectifiers and battery backup solutions for telecom, networking, and low-current infrastructure that requires stable continuous power.",
+  },
+  {
+    title: "Power Distribution",
+    category: "Power Supply",
+    description: "Distribution Boards / PDU / Electrical Infrastructure",
+    image: "/images/services/structured-cabling.jpg",
+    detail:
+      "Power distribution planning and installation covering distribution boards, PDUs, rack power, and organized electrical infrastructure for efficient service delivery.",
+  },
+  {
+    title: "Battery Backup",
+    category: "Power Supply",
+    description: "Battery Banks / Backup Systems / Power Continuity",
+    image: "/images/services/fiber-optic.jpg",
+    detail:
+      "Battery banks and backup systems designed to maintain power continuity, extend runtime, and support critical equipment during planned or unexpected interruptions.",
+  },
+  {
+    title: "Power Protection",
+    category: "Power Supply",
+    description: "Surge Protection / Voltage Regulation / Power Safety",
+    image: "/images/services/cctv-surveillance.jpg",
+    detail:
+      "Power protection solutions using surge protection and voltage regulation to reduce electrical risk and improve the safety and reliability of connected systems.",
+  },
+  {
+    title: "Backup Solutions",
+    category: "Power Supply",
+    description: "Reliable Backup Power / Emergency Power / Business Continuity",
+    image: "/images/services/access-control.jpg",
+    detail:
+      "Reliable emergency and backup power solutions that help businesses maintain essential operations and continuity across critical ELV and ICT environments.",
+  },
+];
+
+const allServices = [...services, ...powerSupplyServices];
 
 const statItems = [
   { value: "07+", label: "Years Experience" },
@@ -230,7 +284,7 @@ function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleTheme: () 
       return;
     }
 
-    const relevant = services.some((service) =>
+    const relevant = allServices.some((service) =>
       `${service.title} ${service.description} ${service.category}`.toLowerCase().includes(value),
     );
 
@@ -536,6 +590,17 @@ function ServicesSection({ isDark }: { isDark: boolean }) {
     });
   }, [activeCategory, serviceSearch]);
 
+  const showPowerSupply = useMemo(() => {
+    const keyword = serviceSearch.trim().toLowerCase();
+    return powerSupplyServices.some((service) => {
+      const matchesCategory = activeCategory === "All" || service.category === activeCategory;
+      const matchesSearch =
+        !keyword ||
+        `${service.title} ${service.description} ${service.category}`.toLowerCase().includes(keyword);
+      return matchesCategory && matchesSearch;
+    });
+  }, [activeCategory, serviceSearch]);
+
   return (
     <>
       <section id="services" className="w-full">
@@ -650,15 +715,63 @@ function ServicesSection({ isDark }: { isDark: boolean }) {
                   </div>
                 </article>
               ))
-            ) : (
+            ) : !showPowerSupply ? (
               <div className={[
                 "md:col-span-2 xl:col-span-3 rounded-[24px] border border-dashed p-8 text-center",
                 isDark ? "border-white/10 bg-[#142534] text-slate-300" : "border-black/10 bg-white text-zinc-500",
               ].join(" ")}>
                 No services match your current filter. Try another keyword or category.
               </div>
-            )}
+            ) : null}
           </div>
+          {showPowerSupply ? (
+            <div className="mt-12 border-t border-black/5 pt-8 md:mt-16 md:pt-10">
+              <div className="mb-5">
+                <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#4a7b1d]">
+                  Power Supply
+                </p>
+                <h3 className={isDark ? "text-2xl font-black tracking-[-0.05em] text-white md:text-3xl" : "text-2xl font-black tracking-[-0.05em] text-[#111827] md:text-3xl"}>
+                  Reliable Power for Critical Infrastructure
+                </h3>
+              </div>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5 xl:grid-cols-6">
+                {powerSupplyServices.map((service) => (
+                <article
+                  key={service.title}
+                  className={[
+                    "group flex min-h-[390px] flex-col overflow-hidden rounded-[20px] border shadow-[0_15px_30px_rgba(17,24,39,0.06)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(17,24,39,0.09)] md:min-h-[430px] md:rounded-[24px]",
+                    isDark ? "border-white/10 bg-[#0f1a24]" : "border-black/5 bg-[#f7f7f4]",
+                  ].join(" ")}
+                >
+                  <div className="relative">
+                    <Image src={service.image} alt={service.title} width={800} height={520} className="h-36 w-full object-cover transition duration-300 group-hover:scale-105 md:h-52" />
+                  </div>
+                  <div className="flex flex-1 flex-col p-3 md:p-5">
+                    <div className="mb-3 flex justify-end md:mb-4">
+                      <span className="text-right text-[9px] font-semibold uppercase tracking-[0.08em] text-[#4a7b1d] md:text-[10px] md:tracking-[0.12em]">
+                        {service.category}
+                      </span>
+                    </div>
+                    <h4 className={isDark ? "text-base font-bold leading-tight tracking-[-0.03em] text-white md:text-2xl" : "text-base font-bold leading-tight tracking-[-0.03em] text-[#111827] md:text-2xl"}>
+                      {service.title}
+                    </h4>
+                    <p className={isDark ? "mt-2 min-h-[56px] text-xs leading-5 text-slate-300 md:min-h-[48px] md:text-sm md:leading-6" : "mt-2 min-h-[56px] text-xs leading-5 text-zinc-600 md:min-h-[48px] md:text-sm md:leading-6"}>{service.description}</p>
+                    <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-4 md:gap-3 md:pt-5">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedService(service)}
+                        className={isDark ? "inline-flex items-center gap-1 text-xs font-semibold text-white md:gap-2 md:text-sm" : "inline-flex items-center gap-1 text-xs font-semibold text-[#0f1720] md:gap-2 md:text-sm"}
+                      >
+                        Learn More <span aria-hidden>→</span>
+                      </button>
+                      <span className="text-[10px] text-zinc-400 md:text-xs">{service.category}</span>
+                    </div>
+                  </div>
+                </article>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
       </section>
 
