@@ -1,8 +1,39 @@
 @import "tailwindcss";
 
 :root {
-  --background: #dfe1dc;
+  --background: #ecf0e8;
   --foreground: #111827;
+  --surface: #f7f7f4;
+  --surface-strong: #f1f2ee;
+  --card: #ffffff;
+  --card-muted: #edf3eb;
+  --border: rgba(15, 23, 32, 0.08);
+  --text-soft: #475569;
+  --shadow: rgba(15, 23, 32, 0.08);
+}
+
+.light-theme {
+  --background: #ecf0e8;
+  --foreground: #111827;
+  --surface: #f7f7f4;
+  --surface-strong: #f1f2ee;
+  --card: #ffffff;
+  --card-muted: #edf3eb;
+  --border: rgba(15, 23, 32, 0.08);
+  --text-soft: #475569;
+  --shadow: rgba(15, 23, 32, 0.08);
+}
+
+.dark-theme {
+  --background: #09151d;
+  --foreground: #edf5f7;
+  --surface: #101d28;
+  --surface-strong: #0f1a24;
+  --card: #142534;
+  --card-muted: #1b2f40;
+  --border: rgba(148, 163, 184, 0.18);
+  --text-soft: #d3e2e9;
+  --shadow: rgba(2, 6, 23, 0.38);
 }
 
 @theme inline {
@@ -21,6 +52,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 * {
@@ -32,6 +64,16 @@ img {
   max-width: 100%;
 }
 
+main,
+main > div,
+main > div > div,
+section,
+section > div,
+article,
+form {
+  min-width: 0;
+}
+
 button,
 input,
 textarea {
@@ -40,6 +82,47 @@ textarea {
 
 .client-marquee {
   animation: marquee 22s linear infinite;
+}
+
+/* Keep the older modal/card surfaces readable when the shared theme changes. */
+.dark-theme [class~="bg-white"],
+.dark-theme [class~="bg-white/80"],
+.dark-theme [class*="bg-[#f7f7f4]"],
+.dark-theme [class*="bg-[#f1f2ee]"] {
+  background-color: var(--card) !important;
+}
+
+.dark-theme [class~="text-zinc-700"],
+.dark-theme [class~="text-zinc-600"],
+.dark-theme [class~="text-zinc-500"],
+.dark-theme [class*="text-[#111827]"],
+.dark-theme [class*="text-[#0f1720]"] {
+  color: var(--foreground) !important;
+}
+
+.dark-theme [class~="text-zinc-400"] {
+  color: #a9bbc5 !important;
+}
+
+.dark-theme [class~="border-black/5"],
+.dark-theme [class~="border-black/10"] {
+  border-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+.dark-theme input::placeholder,
+.dark-theme textarea::placeholder {
+  color: #a9bbc5;
+  opacity: 1;
+}
+
+@media (max-width: 639px) {
+  .client-marquee {
+    gap: 1rem;
+  }
+
+  .client-marquee > span {
+    width: 8.5rem;
+  }
 }
 
 @keyframes marquee {

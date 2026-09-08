@@ -1,13 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+type ThemeMode = "light" | "dark";
 
 type Service = {
   title: string;
   category: string;
   description: string;
-  badge: string;
+  serial: string;
   image: string;
   tag?: string;
   detail: string;
@@ -49,7 +51,7 @@ const serviceCategories = [
   "CCTV",
   "Network",
   "Access Control",
-  "Manpower",
+  "Manpower Supply",
 ];
 
 const services: Service[] = [
@@ -57,7 +59,7 @@ const services: Service[] = [
     title: "Structured Cabling",
     category: "Cabling",
     description: "CAT6 / CAT6A / Rack / Patch Panel / Testing",
-    badge: "S",
+    serial: "01",
     image: "/images/services/structured-cabling.jpg",
     tag: "Most Requested",
     detail:
@@ -67,7 +69,7 @@ const services: Service[] = [
     title: "Fiber Optic",
     category: "Fiber",
     description: "Installation / Splicing / OTDR Testing",
-    badge: "F",
+    serial: "02",
     image: "/images/services/fiber-optic.jpg",
     detail:
       "Fiber optic deployment including backbone cabling, splicing, testing, troubleshooting, and performance verification using OTDR and link certification tools.",
@@ -76,7 +78,7 @@ const services: Service[] = [
     title: "CCTV & Surveillance",
     category: "CCTV",
     description: "IP Camera / NVR / DVR Configuration",
-    badge: "C",
+    serial: "03",
     image: "/images/services/cctv-surveillance.jpg",
     detail:
       "Integrated CCTV systems for retail, corporate, industrial, and public-facing sites with remote monitoring, retention planning, and camera health checks.",
@@ -85,7 +87,7 @@ const services: Service[] = [
     title: "Network & Wi-Fi",
     category: "Network",
     description: "Router / Switch / Wi-Fi AP / Network Infrastructure",
-    badge: "N",
+    serial: "04",
     image: "/images/services/network-wifi.jpg",
     detail:
       "Reliable enterprise networking that includes router and switch setup, Wi-Fi deployment, segmentation, redundancy, and performance tuning for high-density spaces.",
@@ -94,16 +96,16 @@ const services: Service[] = [
     title: "Access Control",
     category: "Access Control",
     description: "Door Access / Biometric / Controller / Reader",
-    badge: "A",
+    serial: "05",
     image: "/images/services/access-control.jpg",
     detail:
       "Access solutions for secure entry points using RFID, biometric, and smart controller systems designed for offices, residential compounds, and commercial sites.",
   },
   {
     title: "Skilled Manpower",
-    category: "Manpower",
+    category: "Manpower Supply",
     description: "ELV / ICT / Telecom Teams / Project Based",
-    badge: "M",
+    serial: "06",
     image: "/images/services/skilled-manpower.jpg",
     tag: "Verified Team",
     detail:
@@ -210,9 +212,10 @@ const initialForm = {
   message: "",
 };
 
-function Header() {
+function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleTheme: () => void }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const isDark = theme === "dark";
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -251,38 +254,47 @@ function Header() {
   return (
     <header id="home" className="w-full">
       <div className="mx-auto max-w-7xl px-4 py-5 md:px-8">
-        <div className="mb-3 hidden items-center justify-between rounded-full border border-black/5 bg-white/80 px-5 py-2 text-[11px] text-zinc-600 shadow-[0_8px_22px_rgba(17,24,39,0.04)] backdrop-blur-sm md:flex">
+        <div className={[
+          "mb-3 hidden items-center justify-between rounded-full border px-5 py-2 text-[11px] shadow-[0_8px_22px_rgba(17,24,39,0.04)] backdrop-blur-sm md:flex",
+          isDark ? "border-white/10 bg-[#0f1a24]/80 text-slate-200" : "border-black/5 bg-white/80 text-zinc-600",
+        ].join(" ")}>
           <div className="flex items-center gap-6">
             <span>Riyadh, Saudi Arabia</span>
             <span>+966 50 184 1918</span>
-            <a href="mailto:info@sauditmart.com" className="hover:text-[#0f1720]">
+            <a href="mailto:info@sauditmart.com" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>
               info@sauditmart.com
             </a>
           </div>
           <div className="flex items-center gap-3">
-            <a href="https://www.linkedin.com" target="_blank" rel="noreferrer" className="hover:text-[#0f1720]">
+            <a href="https://www.linkedin.com" target="_blank" rel="noreferrer" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>
               LinkedIn
             </a>
-            <a href="https://www.facebook.com" target="_blank" rel="noreferrer" className="hover:text-[#0f1720]">
+            <a href="https://www.facebook.com" target="_blank" rel="noreferrer" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>
               Facebook
             </a>
-            <a href="https://www.youtube.com" target="_blank" rel="noreferrer" className="hover:text-[#0f1720]">
+            <a href="https://www.youtube.com" target="_blank" rel="noreferrer" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>
               YouTube
             </a>
-            <a href={whatsappUrl} target="_blank" rel="noreferrer" className="hover:text-[#0f1720]">
+            <a href={whatsappUrl} target="_blank" rel="noreferrer" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>
               WhatsApp
             </a>
           </div>
         </div>
 
-        <nav className="rounded-[28px] border border-black/5 bg-[#f7f7f4]/90 px-4 py-3 shadow-[0_15px_45px_rgba(24,39,26,0.08)] backdrop-blur-sm md:px-6">
+        <nav className={[
+          "rounded-[28px] border px-4 py-3 shadow-[0_15px_45px_rgba(24,39,26,0.08)] backdrop-blur-sm md:px-6",
+          isDark ? "border-white/10 bg-[#0f1a24]/80" : "border-black/5 bg-[#f7f7f4]/90",
+        ].join(" ")}>
           <div className="flex items-center justify-between gap-3">
             <a href="#home" className="flex items-center gap-3" aria-label="Saudi IT Mart home">
               <Image src="/images/logo/site-logo.svg" alt="Saudi IT Mart logo" width={40} height={40} className="rounded-xl" />
-              <div className="text-xl font-black tracking-tight text-[#0f1720]">Saudi IT Mart</div>
+              <div className={isDark ? "text-xl font-black tracking-tight text-white" : "text-xl font-black tracking-tight text-[#0f1720]"}>Saudi IT Mart</div>
             </a>
 
-            <div className="hidden flex-1 items-center justify-center gap-7 text-sm font-medium text-zinc-700 lg:flex">
+            <div className={[
+              "hidden flex-1 items-center justify-center gap-7 text-sm font-medium xl:flex",
+              isDark ? "text-slate-200" : "text-zinc-700",
+            ].join(" ")}>
               {navItems.map((item) => (
                 <a
                   key={item.label}
@@ -291,7 +303,7 @@ function Header() {
                     event.preventDefault();
                     scrollToSection(item.href.replace("#", ""));
                   }}
-                  className="transition hover:text-[#0f1720]"
+                  className={isDark ? "transition hover:text-white" : "transition hover:text-[#0f1720]"}
                 >
                   {item.label}
                 </a>
@@ -305,12 +317,19 @@ function Header() {
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Search services, projects..."
-                  className="h-11 w-full rounded-full border border-black/5 bg-white px-4 pr-11 text-sm text-zinc-700 shadow-sm outline-none placeholder:text-zinc-400 focus:border-[#9adf5e]"
+                  className={[
+                    "h-11 w-full rounded-full border px-4 pr-11 text-sm shadow-sm outline-none placeholder:text-zinc-400 focus:border-[#9adf5e]",
+                    isDark ? "border-white/10 bg-[#142534] text-white" : "border-black/5 bg-white text-zinc-700",
+                  ].join(" ")}
                 />
-                <button type="submit" aria-label="Search services and projects" className="absolute right-3 top-1/2 -translate-y-1/2 text-base text-zinc-500">
+                <button type="submit" aria-label="Search services and projects" className={isDark ? "absolute right-3 top-1/2 -translate-y-1/2 text-base text-slate-300" : "absolute right-3 top-1/2 -translate-y-1/2 text-base text-zinc-500"}>
                   ⌕
                 </button>
               </form>
+              <button type="button" onClick={onToggleTheme} aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"} className={[
+                "inline-flex h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition",
+                isDark ? "border-white/10 bg-[#142534] text-slate-100 hover:bg-[#1b2f40]" : "border-black/10 bg-white text-zinc-800 hover:bg-zinc-50",
+              ].join(" ")}><span aria-hidden="true">{isDark ? "☀️" : "🌙"}</span>{isDark ? "Light" : "Dark"}</button>
               <a
                 href="#project-cta"
                 onClick={(event) => {
@@ -323,18 +342,30 @@ function Header() {
               </a>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setMobileNavOpen(!mobileNavOpen)}
-              aria-label="Toggle navigation menu"
-              className="inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-4 text-sm font-semibold text-zinc-800 lg:hidden"
-            >
-              Menu
-            </button>
+            <div className="flex items-center gap-2 xl:hidden">
+              <button type="button" onClick={onToggleTheme} aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"} className={[
+                "inline-flex h-11 items-center rounded-full border px-3 text-sm font-semibold",
+                isDark ? "border-white/10 bg-[#142534] text-slate-100" : "border-black/10 bg-white text-zinc-800",
+              ].join(" ")}>{isDark ? "☀️ Light" : "🌙 Dark"}</button>
+              <button
+                type="button"
+                onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                aria-label="Toggle navigation menu"
+                className={[
+                  "inline-flex h-11 items-center rounded-full border px-4 text-sm font-semibold",
+                  isDark ? "border-white/10 bg-[#142534] text-slate-100" : "border-black/10 bg-white text-zinc-800",
+                ].join(" ")}
+              >
+                Menu
+              </button>
+            </div>
           </div>
 
           {mobileNavOpen ? (
-            <div className="mt-4 rounded-[24px] border border-black/5 bg-white p-4 lg:hidden">
+            <div className={[
+              "mt-4 rounded-[24px] border p-4 xl:hidden",
+              isDark ? "border-white/10 bg-[#142534]" : "border-black/5 bg-white",
+            ].join(" ")}>
               <div className="flex flex-col gap-2">
                 {navItems.map((item) => (
                   <a
@@ -344,7 +375,10 @@ function Header() {
                       event.preventDefault();
                       scrollToSection(item.href.replace("#", ""));
                     }}
-                    className="rounded-full px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-[#edf7d9] hover:text-[#0f1720]"
+                    className={[
+                      "rounded-full px-3 py-2 text-sm font-medium",
+                      isDark ? "text-slate-200 hover:bg-[#1b2f40] hover:text-white" : "text-zinc-700 hover:bg-[#edf7d9] hover:text-[#0f1720]",
+                    ].join(" ")}
                   >
                     {item.label}
                   </a>
@@ -356,9 +390,12 @@ function Header() {
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Search services, projects..."
-                  className="h-11 w-full rounded-full border border-black/5 bg-[#f7f7f4] px-4 text-sm text-zinc-700 outline-none placeholder:text-zinc-400"
+                  className={[
+                    "h-11 w-full rounded-full border px-4 text-sm outline-none placeholder:text-zinc-400",
+                    isDark ? "border-white/10 bg-[#101d28] text-white" : "border-black/5 bg-[#f7f7f4] text-zinc-700",
+                  ].join(" ")}
                 />
-                <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-base text-zinc-500">
+                <button type="submit" className={isDark ? "absolute right-3 top-1/2 -translate-y-1/2 text-base text-slate-300" : "absolute right-3 top-1/2 -translate-y-1/2 text-base text-zinc-500"}>
                   ⌕
                 </button>
               </form>
@@ -370,7 +407,7 @@ function Header() {
   );
 }
 
-function Hero() {
+function Hero({ isDark }: { isDark: boolean }) {
   const scrollToCta = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     document.getElementById("project-cta")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -384,19 +421,22 @@ function Hero() {
   return (
     <section className="w-full">
       <div className="mx-auto max-w-7xl px-4 pb-12 pt-4 md:px-8">
-        <div className="rounded-[36px] border border-black/5 bg-[#f7f7f4] p-6 shadow-[0_18px_40px_rgba(17,24,39,0.06)] md:p-8 lg:p-10">
-          <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className={[
+          "rounded-[36px] border p-6 shadow-[0_18px_40px_rgba(17,24,39,0.06)] md:p-8 lg:p-10",
+          isDark ? "border-white/10 bg-[#0f1a24]" : "border-black/5 bg-[#f7f7f4]",
+        ].join(" ")}>
+          <div className="grid min-w-0 items-center gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
             <div>
-              <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.22em] text-zinc-500">
+              <p className={isDark ? "mb-4 text-[11px] font-bold uppercase tracking-[0.22em] text-[#a7d86d]" : "mb-4 text-[11px] font-bold uppercase tracking-[0.22em] text-zinc-500"}>
                 Trusted ELV & ICT partner in Saudi Arabia
               </p>
-              <h1 className="max-w-xl text-4xl font-black leading-[0.96] tracking-[-0.06em] text-[#111827] md:text-6xl">
+              <h1 className={isDark ? "max-w-xl text-4xl font-black leading-[0.96] tracking-[-0.06em] text-white md:text-6xl" : "max-w-xl text-4xl font-black leading-[0.96] tracking-[-0.06em] text-[#111827] md:text-6xl"}>
                 Complete <span className="text-[#9bdc62]">ELV & ICT</span>
                 <br />
                 Project Execution
               </h1>
 
-              <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-zinc-700">
+              <div className={isDark ? "mt-5 flex flex-wrap items-center gap-3 text-sm text-slate-200" : "mt-5 flex flex-wrap items-center gap-3 text-sm text-zinc-700"}>
                 {[
                   "Skilled Teams",
                   "Reliable Execution",
@@ -404,14 +444,14 @@ function Hero() {
                 ].map((item) => (
                   <span
                     key={item}
-                    className="rounded-full border border-black/5 bg-white px-3 py-1.5 font-medium shadow-sm"
+                    className={isDark ? "rounded-full border border-white/10 bg-[#142534] px-3 py-1.5 font-medium shadow-sm" : "rounded-full border border-black/5 bg-white px-3 py-1.5 font-medium shadow-sm"}
                   >
                     {item}
                   </span>
                 ))}
               </div>
 
-              <p className="mt-6 max-w-xl text-base leading-8 text-zinc-600 md:text-lg">
+              <p className={isDark ? "mt-6 max-w-xl text-base leading-8 text-slate-300 md:text-lg" : "mt-6 max-w-xl text-base leading-8 text-zinc-600 md:text-lg"}>
                 Saudi IT Mart provides project-based ELV, ICT and low-current installation solutions for contractors, businesses and construction projects across Riyadh and Saudi Arabia.
               </p>
 
@@ -426,7 +466,7 @@ function Hero() {
                 <a
                   href="#services"
                   onClick={scrollToServices}
-                  className="inline-flex h-12 items-center rounded-full border border-black/10 bg-white px-6 text-sm font-semibold text-zinc-800 transition hover:border-black/15 hover:bg-zinc-50"
+                  className={isDark ? "inline-flex h-12 items-center rounded-full border border-white/10 bg-[#142534] px-6 text-sm font-semibold text-slate-100 transition hover:border-white/20" : "inline-flex h-12 items-center rounded-full border border-black/10 bg-white px-6 text-sm font-semibold text-zinc-800 transition hover:border-black/15 hover:bg-zinc-50"}
                 >
                   Our Services
                 </a>
@@ -441,7 +481,7 @@ function Hero() {
                 ].map((item) => (
                   <div
                     key={item}
-                    className="rounded-xl border-y border-black/5 px-2 py-3 text-center text-[11px] font-medium leading-5 text-zinc-700"
+                    className={isDark ? "rounded-xl border border-white/10 bg-[#142534] px-2 py-3 text-center text-[11px] font-medium leading-5 text-slate-200" : "rounded-xl border-y border-black/5 px-2 py-3 text-center text-[11px] font-medium leading-5 text-zinc-700"}
                   >
                     {item}
                   </div>
@@ -450,10 +490,10 @@ function Hero() {
             </div>
 
             <div className="relative">
-              <div className="absolute -left-2 top-6 rounded-full border border-[#c8ed9e] bg-[#d9f6b0] px-3 py-2 text-xs font-semibold text-[#0f1720] shadow-sm">
+              <div className="absolute left-2 top-6 rounded-full border border-[#c8ed9e] bg-[#d9f6b0] px-3 py-2 text-xs font-semibold text-[#0f1720] shadow-sm sm:left-0">
                 7+ Years Experience
               </div>
-              <div className="absolute -right-2 top-24 rounded-full border border-[#c8ed9e] bg-[#d9f6b0] px-3 py-2 text-xs font-semibold text-[#0f1720] shadow-sm">
+              <div className="absolute right-2 top-24 rounded-full border border-[#c8ed9e] bg-[#d9f6b0] px-3 py-2 text-xs font-semibold text-[#0f1720] shadow-sm sm:right-0">
                 50+ Projects
               </div>
               <div className="absolute bottom-10 left-0 rounded-full border border-[#c8ed9e] bg-[#d9f6b0] px-3 py-2 text-xs font-semibold text-[#0f1720] shadow-sm">
@@ -478,7 +518,7 @@ function Hero() {
   );
 }
 
-function ServicesSection() {
+function ServicesSection({ isDark }: { isDark: boolean }) {
   const [activeCategory, setActiveCategory] = useState("All");
   const [serviceSearch, setServiceSearch] = useState("");
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -533,7 +573,9 @@ function ServicesSection() {
                   "rounded-full border px-4 py-2 text-sm font-medium transition",
                   activeCategory === category
                     ? "border-[#9bdc62] bg-[#aef06c] text-[#0f1720] shadow-sm"
-                    : "border-black/5 bg-white text-zinc-700 hover:border-black/10",
+                    : isDark
+                      ? "border-white/10 bg-[#142534] text-slate-200 hover:border-white/20"
+                      : "border-black/5 bg-white text-zinc-700 hover:border-black/10",
                 ].join(" ")}
               >
                 {category}
@@ -547,16 +589,24 @@ function ServicesSection() {
               value={serviceSearch}
               onChange={(event) => setServiceSearch(event.target.value)}
               placeholder="Filter services by keyword"
-              className="h-11 w-full max-w-xs rounded-full border border-black/5 bg-white px-4 text-sm text-zinc-700 shadow-sm outline-none placeholder:text-zinc-400 focus:border-[#9adf5e]"
+              className={[
+                "h-11 w-full max-w-xs rounded-full border px-4 text-sm shadow-sm outline-none placeholder:text-zinc-400 focus:border-[#9adf5e]",
+                isDark
+                  ? "border-white/10 bg-[#142534] text-white"
+                  : "border-black/5 bg-white text-zinc-700",
+              ].join(" ")}
             />
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5 xl:grid-cols-6">
             {filteredServices.length > 0 ? (
               filteredServices.map((service) => (
                 <article
                   key={service.title}
-                  className="group overflow-hidden rounded-[24px] border border-black/5 bg-[#f7f7f4] shadow-[0_15px_30px_rgba(17,24,39,0.06)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(17,24,39,0.09)]"
+                  className={[
+                    "group flex min-h-[390px] flex-col overflow-hidden rounded-[20px] border shadow-[0_15px_30px_rgba(17,24,39,0.06)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(17,24,39,0.09)] md:min-h-[430px] md:rounded-[24px]",
+                    isDark ? "border-white/10 bg-[#0f1a24]" : "border-black/5 bg-[#f7f7f4]",
+                  ].join(" ")}
                 >
                   <div className="relative">
                     {service.tag ? (
@@ -569,39 +619,42 @@ function ServicesSection() {
                       alt={service.title}
                       width={800}
                       height={520}
-                      className="h-52 w-full object-cover transition duration-300 group-hover:scale-105"
+                      className="h-36 w-full object-cover transition duration-300 group-hover:scale-105 md:h-52"
                     />
                   </div>
-                  <div className="p-5">
-                    <div className="mb-4 flex items-center justify-between gap-3">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#dff6b5] text-sm font-black text-[#0f1720]">
-                        {service.badge}
+                  <div className="flex flex-1 flex-col p-3 md:p-5">
+                    <div className="mb-3 flex items-center justify-between gap-2 md:mb-4 md:gap-3">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#dff6b5] text-xs font-black text-[#0f1720] md:h-11 md:w-11 md:text-sm">
+                        {service.serial}
                       </div>
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#4a7b1d]">
+                      <span className="text-right text-[9px] font-semibold uppercase tracking-[0.08em] text-[#4a7b1d] md:text-[10px] md:tracking-[0.12em]">
                         {service.category}
                       </span>
                     </div>
 
-                    <h3 className="text-2xl font-bold tracking-[-0.04em] text-[#111827]">
+                    <h3 className={isDark ? "text-base font-bold leading-tight tracking-[-0.03em] text-white md:text-2xl" : "text-base font-bold leading-tight tracking-[-0.03em] text-[#111827] md:text-2xl"}>
                       {service.title}
                     </h3>
-                    <p className="mt-2 text-sm leading-6 text-zinc-600">{service.description}</p>
+                    <p className={isDark ? "mt-2 min-h-[56px] text-xs leading-5 text-slate-300 md:min-h-[48px] md:text-sm md:leading-6" : "mt-2 min-h-[56px] text-xs leading-5 text-zinc-600 md:min-h-[48px] md:text-sm md:leading-6"}>{service.description}</p>
 
-                    <div className="mt-5 flex items-center justify-between gap-3">
+                    <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-4 md:gap-3 md:pt-5">
                       <button
                         type="button"
                         onClick={() => setSelectedService(service)}
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-[#0f1720]"
+                        className={isDark ? "inline-flex items-center gap-1 text-xs font-semibold text-white md:gap-2 md:text-sm" : "inline-flex items-center gap-1 text-xs font-semibold text-[#0f1720] md:gap-2 md:text-sm"}
                       >
                         Learn More <span aria-hidden>→</span>
                       </button>
-                      <span className="text-xs text-zinc-400">{service.category}</span>
+                      <span className="text-[10px] text-zinc-400 md:text-xs">{service.category}</span>
                     </div>
                   </div>
                 </article>
               ))
             ) : (
-              <div className="md:col-span-2 xl:col-span-3 rounded-[24px] border border-dashed border-black/10 bg-white p-8 text-center text-zinc-500">
+              <div className={[
+                "md:col-span-2 xl:col-span-3 rounded-[24px] border border-dashed p-8 text-center",
+                isDark ? "border-white/10 bg-[#142534] text-slate-300" : "border-black/10 bg-white text-zinc-500",
+              ].join(" ")}>
                 No services match your current filter. Try another keyword or category.
               </div>
             )}
@@ -639,16 +692,19 @@ function ServicesSection() {
   );
 }
 
-function AboutSection() {
+function AboutSection({ isDark }: { isDark: boolean }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
     <section id="about" className="w-full">
       <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
-        <div className="grid items-center gap-8 lg:grid-cols-[0.95fr_1.05fr]">
-          <div className="overflow-hidden rounded-[30px] border border-black/5 bg-[#f7f7f4] p-3 shadow-[0_18px_40px_rgba(17,24,39,0.08)]">
+        <div className="grid min-w-0 items-center gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+          <div className={[
+            "overflow-hidden rounded-[30px] border p-3 shadow-[0_18px_40px_rgba(17,24,39,0.08)]",
+            isDark ? "border-white/10 bg-[#0f1a24]" : "border-black/5 bg-[#f7f7f4]",
+          ].join(" ")}>
             <Image
-              src="/images/about/about-main.jpg"
+              src="/images/about/about-main.png"
               alt="ELV and ICT infrastructure installation"
               width={960}
               height={780}
@@ -660,15 +716,15 @@ function AboutSection() {
             <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-[#4a7b1d]">
               About Saudi IT Mart
             </p>
-            <h2 className="text-3xl font-black tracking-[-0.05em] text-[#111827] md:text-5xl">
+            <h2 className={isDark ? "text-3xl font-black tracking-[-0.05em] text-white md:text-5xl" : "text-3xl font-black tracking-[-0.05em] text-[#111827] md:text-5xl"}>
               Good infrastructure should feel invisible.
             </h2>
-            <p className="mt-5 text-base leading-8 text-zinc-600 md:text-lg">
+            <p className={isDark ? "mt-5 text-base leading-8 text-slate-300 md:text-lg" : "mt-5 text-base leading-8 text-zinc-600 md:text-lg"}>
               Saudi IT Mart provides project-based ELV, ICT and low-current installation solutions for contractors, businesses and construction projects across Riyadh and Saudi Arabia. The company also supplies skilled manpower and can mobilize technical teams to execute projects independently.
             </p>
 
             {expanded ? (
-              <p className="mt-4 text-base leading-8 text-zinc-600 md:text-lg">
+              <p className={isDark ? "mt-4 text-base leading-8 text-slate-300 md:text-lg" : "mt-4 text-base leading-8 text-zinc-600 md:text-lg"}>
                 We support contractors, developers, and facility owners with trusted execution, quality controls, and responsive project delivery from planning through commissioning.
               </p>
             ) : null}
@@ -679,11 +735,14 @@ function AboutSection() {
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {statItems.map((item) => (
-                <div key={item.label} className="rounded-[20px] border border-black/5 bg-white p-4 shadow-sm">
-                  <div className="text-3xl font-black tracking-[-0.05em] text-[#0f1720]">
+                <div key={item.label} className={[
+                  "rounded-[20px] border p-4 shadow-sm",
+                  isDark ? "border-white/10 bg-[#142534]" : "border-black/5 bg-white",
+                ].join(" ")}>
+                  <div className={isDark ? "text-3xl font-black tracking-[-0.05em] text-white" : "text-3xl font-black tracking-[-0.05em] text-[#0f1720]"}>
                     {item.value}
                   </div>
-                  <div className="mt-2 text-sm text-zinc-600">{item.label}</div>
+                  <div className={isDark ? "mt-2 text-sm text-slate-300" : "mt-2 text-sm text-zinc-600"}>{item.label}</div>
                 </div>
               ))}
             </div>
@@ -694,32 +753,38 @@ function AboutSection() {
   );
 }
 
-function PartnerBrandsSection() {
+function PartnerBrandsSection({ isDark }: { isDark: boolean }) {
   const [showAllBrands, setShowAllBrands] = useState(false);
 
   return (
     <>
       <section className="w-full">
         <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
-          <div className="mb-8 flex items-center justify-between gap-4">
+          <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#4a7b1d]">
                 Our Partner Brands
               </p>
-              <h2 className="text-3xl font-black tracking-[-0.05em] text-[#111827] md:text-4xl">
+              <h2 className={isDark ? "text-3xl font-black tracking-[-0.05em] text-white md:text-4xl" : "text-3xl font-black tracking-[-0.05em] text-[#111827] md:text-4xl"}>
                 We use trusted global brands for reliable and professional solutions.
               </h2>
             </div>
-            <button type="button" onClick={() => setShowAllBrands(true)} className="inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-5 text-sm font-semibold text-zinc-800 shadow-sm transition hover:bg-zinc-50">
+            <button type="button" onClick={() => setShowAllBrands(true)} className={isDark ? "inline-flex h-11 items-center rounded-full border border-white/10 bg-[#142534] px-5 text-sm font-semibold text-slate-100 shadow-sm transition hover:bg-[#1b2f40]" : "inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-5 text-sm font-semibold text-zinc-800 shadow-sm transition hover:bg-zinc-50"}>
               View All Brands <span className="ml-2">→</span>
             </button>
           </div>
 
-          <div className="grid gap-3 rounded-[28px] border border-black/5 bg-white p-4 shadow-[0_15px_30px_rgba(17,24,39,0.04)] sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+          <div className={[
+            "grid gap-3 rounded-[28px] border p-4 shadow-[0_15px_30px_rgba(17,24,39,0.04)] sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6",
+            isDark ? "border-white/10 bg-[#0f1a24]" : "border-black/5 bg-white",
+          ].join(" ")}>
               {partnerBrands.slice(0, 6).map((brand) => (
               <div
                   key={brand.name}
-                className="flex min-h-[90px] items-center justify-center rounded-[20px] border border-black/5 bg-[#f7f7f4] px-4 py-5 text-lg font-black tracking-[-0.04em] text-zinc-600 transition hover:bg-white hover:text-[#0f1720]"
+                className={[
+                  "flex min-h-[90px] items-center justify-center rounded-[20px] border px-4 py-5 text-lg font-black tracking-[-0.04em] transition",
+                  isDark ? "border-white/10 bg-[#142534] text-slate-200 hover:bg-[#193244] hover:text-white" : "border-black/5 bg-[#f7f7f4] text-zinc-600 hover:bg-white hover:text-[#0f1720]",
+                ].join(" ")}
               >
                   <Image src={brand.image} alt={`${brand.name} logo`} width={180} height={72} className="h-10 w-full object-contain" />
               </div>
@@ -751,7 +816,7 @@ function PartnerBrandsSection() {
   );
 }
 
-function ProjectsSection() {
+function ProjectsSection({ isDark }: { isDark: boolean }) {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showAllProjects, setShowAllProjects] = useState(false);
 
@@ -759,26 +824,27 @@ function ProjectsSection() {
     <>
       <section id="completed-projects" className="w-full">
         <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
-          <div className="mb-7 flex items-center justify-between gap-4">
+          <div className="mb-7 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#4a7b1d]">
                 Completed Projects
               </p>
-              <h2 className="text-3xl font-black tracking-[-0.05em] text-[#111827] md:text-4xl">
+              <h2 className={isDark ? "text-3xl font-black tracking-[-0.05em] text-white md:text-4xl" : "text-3xl font-black tracking-[-0.05em] text-[#111827] md:text-4xl"}>
                 Real Projects. Real Results.
               </h2>
             </div>
-            <button type="button" onClick={() => setShowAllProjects(true)} className="inline-flex h-11 items-center rounded-full bg-[#0f1720] px-5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#1a242c]">
+              <button type="button" onClick={() => setShowAllProjects(true)} className="inline-flex h-11 items-center rounded-full bg-[#0f1720] px-5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#1a242c]">
               View All Projects <span className="ml-2">→</span>
             </button>
           </div>
 
-          <div className="grid gap-5 lg:grid-cols-3">
+          <div className="grid min-w-0 gap-5 md:grid-cols-2 lg:grid-cols-3">
             {projects.map((project, index) => (
               <article
                 key={project.name}
                 className={[
-                  "group overflow-hidden rounded-[24px] border border-black/5 bg-[#f7f7f4] shadow-[0_15px_30px_rgba(17,24,39,0.06)]",
+                  "group overflow-hidden rounded-[24px] border shadow-[0_15px_30px_rgba(17,24,39,0.06)]",
+                  isDark ? "border-white/10 bg-[#0f1a24]" : "border-black/5 bg-[#f7f7f4]",
                   index === 0 ? "lg:col-span-2" : "",
                 ].join(" ")}
               >
@@ -804,12 +870,12 @@ function ProjectsSection() {
                     <span className="inline-block h-2 w-2 rounded-full bg-[#aef06c]" />
                     {project.location}
                   </div>
-                  <h3 className="mt-3 text-2xl font-bold tracking-[-0.04em] text-[#111827]">
+                  <h3 className={isDark ? "mt-3 text-2xl font-bold tracking-[-0.04em] text-white" : "mt-3 text-2xl font-bold tracking-[-0.04em] text-[#111827]"}>
                     {project.name}
                   </h3>
-                  <p className="mt-2 text-sm text-zinc-600">{project.scope}</p>
+                  <p className={isDark ? "mt-2 text-sm text-slate-300" : "mt-2 text-sm text-zinc-600"}>{project.scope}</p>
                   <div className="mt-4 flex items-center justify-between">
-                    <span className="text-sm font-medium text-zinc-500">{project.date}</span>
+                    <span className={isDark ? "text-sm font-medium text-slate-400" : "text-sm font-medium text-zinc-500"}>{project.date}</span>
                     <button type="button" onClick={() => setSelectedProject(project)} className="inline-flex h-10 items-center rounded-full bg-[#0f1720] px-4 text-xs font-semibold text-white transition hover:bg-[#1a242c]">
                       View Details
                     </button>
@@ -879,24 +945,68 @@ function ProjectsSection() {
   );
 }
 
-function ClientsSection() {
+function ClientsSection({ isDark }: { isDark: boolean }) {
   return (
     <section className="w-full">
       <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
         <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#4a7b1d]">
           Our Clients & Partners
         </p>
-        <h2 className="text-3xl font-black tracking-[-0.05em] text-[#111827] md:text-4xl">
+        <h2 className={isDark ? "text-3xl font-black tracking-[-0.05em] text-white md:text-4xl" : "text-3xl font-black tracking-[-0.05em] text-[#111827] md:text-4xl"}>
           Trusted by leading contractors, businesses and organizations across Saudi Arabia.
         </h2>
 
-        <div className="mt-8 overflow-hidden rounded-[28px] border border-black/5 bg-[#f7f7f4] p-5 shadow-[0_15px_30px_rgba(17,24,39,0.04)]">
+        <div className={[
+          "mt-8 overflow-hidden rounded-[28px] border p-5 shadow-[0_15px_30px_rgba(17,24,39,0.04)] [contain:paint]",
+          isDark ? "border-white/10 bg-[#0f1a24]" : "border-black/5 bg-[#f7f7f4]",
+        ].join(" ")}>
           <div className="client-marquee flex min-w-max gap-8 whitespace-nowrap text-3xl font-black tracking-[-0.05em] text-zinc-600">
             {[...clientLogos, ...clientLogos].map((logo, index) => (
               <span key={`${logo.name}-${index}`} className="inline-flex h-16 w-40 items-center px-4 py-2">
                 <Image src={logo.image} alt={`${logo.name} logo`} width={160} height={64} className="h-12 w-full object-contain" />
               </span>
             ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function LocationSection({ isDark }: { isDark: boolean }) {
+  return (
+    <section className="w-full">
+      <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
+        <div className={[
+          "grid gap-6 rounded-[30px] border p-6 shadow-[0_18px_40px_rgba(17,24,39,0.06)] lg:grid-cols-[0.9fr_1.1fr]",
+          isDark ? "border-white/10 bg-[#0f1a24]" : "border-black/5 bg-[#f7f7f4]",
+        ].join(" ")}>
+          <div>
+            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#4a7b1d]">
+              Shop / Office Location
+            </p>
+            <h2 className={isDark ? "text-3xl font-black tracking-[-0.05em] text-white md:text-4xl" : "text-3xl font-black tracking-[-0.05em] text-[#111827] md:text-4xl"}>
+              Visit our Riyadh office or connect for onsite project support.
+            </h2>
+            <div className={isDark ? "mt-6 space-y-3 text-slate-300" : "mt-6 space-y-3 text-zinc-600"}>
+              <p className="text-base">Saudi IT Mart</p>
+              <p className="text-base">Riyadh, Saudi Arabia</p>
+              <p className="text-base">Phone: +966 50 184 1918</p>
+              <p className="text-base">Email: info@sauditmart.com</p>
+            </div>
+          </div>
+
+          <div className={[
+            "rounded-[26px] border p-4",
+            isDark ? "border-white/10 bg-[#142534]" : "border-black/5 bg-white",
+          ].join(" ")}>
+            <div className="flex h-full min-h-[220px] items-center justify-center rounded-[20px] border border-dashed border-[#9bdc62] bg-[radial-gradient(circle_at_center,_rgba(155,220,98,0.14),_transparent_60%)] p-6 text-center">
+              <div>
+                <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[#dff6b5] text-2xl">📍</div>
+                <p className={isDark ? "text-lg font-semibold text-white" : "text-lg font-semibold text-[#111827]"}>Saudi IT Mart Office</p>
+                <p className={isDark ? "mt-2 text-sm text-slate-300" : "mt-2 text-sm text-zinc-600"}>Serving contractors, developers, and IT projects throughout Riyadh and the Kingdom.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1064,7 +1174,7 @@ function CtaSection() {
   );
 }
 
-function Footer() {
+function Footer({ isDark }: { isDark: boolean }) {
   const links = [
     { label: "Home", href: "#home" },
     { label: "About Us", href: "#about" },
@@ -1080,21 +1190,24 @@ function Footer() {
   return (
     <footer id="contact-us" className="w-full">
       <div className="mx-auto max-w-7xl px-4 pb-10 pt-6 md:px-8">
-        <div className="rounded-[30px] border border-black/5 bg-[#f7f7f4] p-6 shadow-[0_15px_28px_rgba(17,24,39,0.05)]">
+        <div className={[
+          "rounded-[30px] border p-6 shadow-[0_15px_28px_rgba(17,24,39,0.05)]",
+          isDark ? "border-white/10 bg-[#0f1a24]" : "border-black/5 bg-[#f7f7f4]",
+        ].join(" ")}>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div>
               <div className="flex items-center gap-3">
                 <Image src="/images/logo/site-logo.svg" alt="Saudi IT Mart logo" width={40} height={40} className="rounded-xl" />
-                <div className="text-xl font-black tracking-tight text-[#111827]">Saudi IT Mart</div>
+                <div className={isDark ? "text-xl font-black tracking-tight text-white" : "text-xl font-black tracking-tight text-[#111827]"}>Saudi IT Mart</div>
               </div>
-              <p className="mt-4 text-sm leading-7 text-zinc-600">
+              <p className={isDark ? "mt-4 text-sm leading-7 text-slate-300" : "mt-4 text-sm leading-7 text-zinc-600"}>
                 Project-based ELV, ICT and low-current solutions across Saudi Arabia.
               </p>
             </div>
 
             <div>
-              <h3 className="text-lg font-bold text-[#111827]">Quick Links</h3>
-              <ul className="mt-4 space-y-2 text-sm text-zinc-600">
+              <h3 className={isDark ? "text-lg font-bold text-white" : "text-lg font-bold text-[#111827]"}>Quick Links</h3>
+              <ul className={isDark ? "mt-4 space-y-2 text-sm text-slate-300" : "mt-4 space-y-2 text-sm text-zinc-600"}>
                 {links.map((link) => (
                   <li key={link.label}>
                     <a
@@ -1103,7 +1216,7 @@ function Footer() {
                         event.preventDefault();
                         document.getElementById(link.href.replace("#", ""))?.scrollIntoView({ behavior: "smooth", block: "start" });
                       }}
-                      className="hover:text-[#0f1720]"
+                      className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}
                     >
                       {link.label}
                     </a>
@@ -1113,17 +1226,17 @@ function Footer() {
             </div>
 
             <div>
-              <h3 className="text-lg font-bold text-[#111827]">Contact</h3>
-              <ul className="mt-4 space-y-2 text-sm text-zinc-600">
+              <h3 className={isDark ? "text-lg font-bold text-white" : "text-lg font-bold text-[#111827]"}>Contact</h3>
+              <ul className={isDark ? "mt-4 space-y-2 text-sm text-slate-300" : "mt-4 space-y-2 text-sm text-zinc-600"}>
                 <li>Riyadh, Saudi Arabia</li>
-                <li><a href="tel:+966501841918" className="hover:text-[#0f1720]">+966 50 184 1918</a></li>
-                <li><a href="mailto:info@sauditmart.com" className="hover:text-[#0f1720]">info@sauditmart.com</a></li>
-                <li><a href="http://www.sauditmart.com" target="_blank" rel="noreferrer" className="hover:text-[#0f1720]">www.sauditmart.com</a></li>
+                <li><a href="tel:+966501841918" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>+966 50 184 1918</a></li>
+                <li><a href="mailto:info@sauditmart.com" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>info@sauditmart.com</a></li>
+                <li><a href="http://www.sauditmart.com" target="_blank" rel="noreferrer" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>www.sauditmart.com</a></li>
               </ul>
             </div>
 
             <div>
-              <h3 className="text-lg font-bold text-[#111827]">Follow Us</h3>
+              <h3 className={isDark ? "text-lg font-bold text-white" : "text-lg font-bold text-[#111827]"}>Follow Us</h3>
               <div className="mt-4 flex gap-3">
                 {[
                   { label: "in", href: "https://www.linkedin.com" },
@@ -1131,7 +1244,7 @@ function Footer() {
                   { label: "yt", href: "https://www.youtube.com" },
                   { label: "wa", href: whatsappUrl },
                 ].map((social) => (
-                  <a key={social.label} href={social.href} target="_blank" rel="noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full border border-black/5 bg-white text-sm font-bold text-[#0f1720] shadow-sm transition hover:-translate-y-0.5">
+                  <a key={social.label} href={social.href} target="_blank" rel="noreferrer" className={isDark ? "flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#142534] text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5" : "flex h-10 w-10 items-center justify-center rounded-full border border-black/5 bg-white text-sm font-bold text-[#0f1720] shadow-sm transition hover:-translate-y-0.5"}>
                     {social.label}
                   </a>
                 ))}
@@ -1139,11 +1252,11 @@ function Footer() {
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col gap-4 border-t border-black/5 pt-5 text-sm text-zinc-500 md:flex-row md:items-center md:justify-between">
+          <div className={isDark ? "mt-8 flex flex-col gap-4 border-t border-white/10 pt-5 text-sm text-slate-300 md:flex-row md:items-center md:justify-between" : "mt-8 flex flex-col gap-4 border-t border-black/5 pt-5 text-sm text-zinc-500 md:flex-row md:items-center md:justify-between"}>
             <div>© 2024 Saudi IT Mart. All Rights Reserved.</div>
             <div className="flex gap-5">
-              <a href="#about" onClick={(event) => { event.preventDefault(); document.getElementById("about")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} className="hover:text-[#0f1720]">Privacy Policy</a>
-              <a href="#services" onClick={(event) => { event.preventDefault(); document.getElementById("services")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} className="hover:text-[#0f1720]">Terms of Service</a>
+              <a href="#about" onClick={(event) => { event.preventDefault(); document.getElementById("about")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>Privacy Policy</a>
+              <a href="#services" onClick={(event) => { event.preventDefault(); document.getElementById("services")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>Terms of Service</a>
             </div>
           </div>
         </div>
@@ -1153,21 +1266,54 @@ function Footer() {
 }
 
 export default function Home() {
+  const [theme, setTheme] = useState<ThemeMode>("light");
+  const themeHydrated = useRef(false);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const savedTheme = window.localStorage.getItem("saudi-it-mart-theme");
+      const initialTheme: ThemeMode = savedTheme === "light" || savedTheme === "dark"
+        ? savedTheme
+        : window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+
+      themeHydrated.current = true;
+      window.localStorage.setItem("saudi-it-mart-theme", initialTheme);
+      setTheme(initialTheme);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    if (!themeHydrated.current) {
+      return;
+    }
+
+    document.documentElement.classList.toggle("dark-theme", theme === "dark");
+    document.documentElement.classList.toggle("light-theme", theme === "light");
+    window.localStorage.setItem("saudi-it-mart-theme", theme);
+  }, [theme]);
+
+  const isDark = theme === "dark";
+
   return (
-    <main className="min-h-screen w-full bg-[#dfe1dc] text-[#111827]">
+    <main className={isDark ? "min-h-screen w-full bg-[#09151d] text-white" : "min-h-screen w-full bg-[#dfe1dc] text-[#111827]"}>
       <div className="w-full">
-        <div className="border border-black/5 bg-[#f1f2ee] shadow-[0_24px_60px_rgba(15,23,32,0.06)]">
-          <Header />
-          <Hero />
-          <ServicesSection />
-          <AboutSection />
+        <div className={isDark ? "border border-white/10 bg-[#0b1821] shadow-[0_24px_60px_rgba(2,6,23,0.32)]" : "border border-black/5 bg-[#f1f2ee] shadow-[0_24px_60px_rgba(15,23,32,0.06)]"}>
+          <Header theme={theme} onToggleTheme={() => setTheme((current) => (current === "dark" ? "light" : "dark"))} />
+          <Hero isDark={isDark} />
+          <ServicesSection isDark={isDark} />
+          <AboutSection isDark={isDark} />
           <div id="partners">
-            <PartnerBrandsSection />
+            <PartnerBrandsSection isDark={isDark} />
           </div>
-          <ProjectsSection />
-          <ClientsSection />
+          <ProjectsSection isDark={isDark} />
+          <LocationSection isDark={isDark} />
+          <ClientsSection isDark={isDark} />
           <CtaSection />
-          <Footer />
+          <Footer isDark={isDark} />
         </div>
       </div>
     </main>
