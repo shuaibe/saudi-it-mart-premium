@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { PublicContentContext, type PublicContent, usePublicContent } from "../lib/content/public-context";
 
 type ThemeMode = "light" | "dark";
 
@@ -41,19 +42,11 @@ const navItems = [
   { label: "Contact Us", href: "#contact-us" },
 ];
 
-const whatsappNumber = "966501841918";
-const whatsappUrl = `https://wa.me/${whatsappNumber}`;
+const defaultWhatsappNumber = "966501841918";
 
-const serviceCategories = [
-  "All",
-  "Cabling",
-  "Fiber",
-  "CCTV",
-  "Network",
-  "Access Control",
-  "Manpower Supply",
-  "Power Supply",
-];
+function getWhatsappUrl(content: PublicContent | null) {
+  return `https://wa.me/${content?.contact.whatsapp_number || defaultWhatsappNumber}`;
+}
 
 const services: Service[] = [
   {
@@ -267,6 +260,11 @@ const initialForm = {
 };
 
 function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleTheme: () => void }) {
+  const content = usePublicContent();
+  const contact = content?.contact;
+  const searchableServices = (content?.services as Service[] | undefined) ?? allServices;
+  const searchableProjects = (content?.projects as Project[] | undefined) ?? projects;
+  const whatsappUrl = getWhatsappUrl(content);
   const [searchTerm, setSearchTerm] = useState("");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const isDark = theme === "dark";
@@ -284,7 +282,7 @@ function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleTheme: () 
       return;
     }
 
-    const relevant = allServices.some((service) =>
+    const relevant = searchableServices.some((service) =>
       `${service.title} ${service.description} ${service.category}`.toLowerCase().includes(value),
     );
 
@@ -293,7 +291,7 @@ function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleTheme: () 
       return;
     }
 
-    const projectMatch = projects.some((project) =>
+    const projectMatch = searchableProjects.some((project) =>
       `${project.name} ${project.location} ${project.scope}`.toLowerCase().includes(value),
     );
 
@@ -314,19 +312,19 @@ function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleTheme: () 
         ].join(" ")}>
           <div className="flex items-center gap-6">
             <span>Riyadh, Saudi Arabia</span>
-            <span>+966 50 184 1918</span>
-            <a href="mailto:info@sauditmart.com" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>
-              info@sauditmart.com
+            <span>{contact?.phone_number || "+966 50 184 1918"}</span>
+            <a href={`mailto:${contact?.email || "info@sauditmart.com"}`} className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>
+              {contact?.email || "info@sauditmart.com"}
             </a>
           </div>
           <div className="flex items-center gap-3">
-            <a href="https://www.linkedin.com" target="_blank" rel="noreferrer" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>
+            <a href={contact?.linkedin_url || "https://www.linkedin.com"} target="_blank" rel="noreferrer" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>
               LinkedIn
             </a>
-            <a href="https://www.facebook.com" target="_blank" rel="noreferrer" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>
+            <a href={contact?.facebook_url || "https://www.facebook.com"} target="_blank" rel="noreferrer" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>
               Facebook
             </a>
-            <a href="https://www.youtube.com" target="_blank" rel="noreferrer" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>
+            <a href={contact?.youtube_url || "https://www.youtube.com"} target="_blank" rel="noreferrer" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>
               YouTube
             </a>
             <a href={whatsappUrl} target="_blank" rel="noreferrer" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>
@@ -341,7 +339,7 @@ function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleTheme: () 
         ].join(" ")}>
           <div className="flex items-center justify-between gap-3">
             <a href="#home" className="flex items-center gap-3" aria-label="Saudi IT Mart home">
-              <Image src="/images/logo/site-logo.svg" alt="Saudi IT Mart logo" width={40} height={40} className="rounded-xl" />
+              <Image src={content?.mainLogo || "/images/logo/site-logo.svg"} alt="Saudi IT Mart logo" width={40} height={40} className="rounded-xl" />
               <div className={isDark ? "text-xl font-black tracking-tight text-white" : "text-xl font-black tracking-tight text-[#0f1720]"}>Saudi IT Mart</div>
             </a>
 
@@ -462,6 +460,10 @@ function Header({ theme, onToggleTheme }: { theme: ThemeMode; onToggleTheme: () 
 }
 
 function Hero({ isDark }: { isDark: boolean }) {
+  const content = usePublicContent();
+  const site = content?.site;
+  const heroFeatures = site?.hero_features ?? ["Skilled Teams", "Reliable Execution", "On-Time Delivery"];
+  const heroStatBadges = site?.hero_stat_badges ?? ["7+ Years Experience", "50+ Projects", "100+ Skilled Manpower", "100% Client Satisfaction"];
   const scrollToCta = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     document.getElementById("project-cta")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -482,20 +484,14 @@ function Hero({ isDark }: { isDark: boolean }) {
           <div className="grid min-w-0 items-center gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
             <div>
               <p className={isDark ? "mb-4 text-[11px] font-bold uppercase tracking-[0.22em] text-[#a7d86d]" : "mb-4 text-[11px] font-bold uppercase tracking-[0.22em] text-zinc-500"}>
-                Trusted ELV & ICT partner in Saudi Arabia
+                {site?.hero_eyebrow || "Trusted ELV & ICT partner in Saudi Arabia"}
               </p>
               <h1 className={isDark ? "max-w-xl text-4xl font-black leading-[0.96] tracking-[-0.06em] text-white md:text-6xl" : "max-w-xl text-4xl font-black leading-[0.96] tracking-[-0.06em] text-[#111827] md:text-6xl"}>
-                Complete <span className="text-[#9bdc62]">ELV & ICT</span>
-                <br />
-                Project Execution
+                {site?.hero_heading === "Complete ELV & ICT Project Execution" || !site?.hero_heading ? <><span>Complete </span><span className="text-[#9bdc62]">ELV & ICT</span><br />Project Execution</> : site.hero_heading}
               </h1>
 
               <div className={isDark ? "mt-5 flex flex-wrap items-center gap-3 text-sm text-slate-200" : "mt-5 flex flex-wrap items-center gap-3 text-sm text-zinc-700"}>
-                {[
-                  "Skilled Teams",
-                  "Reliable Execution",
-                  "On-Time Delivery",
-                ].map((item) => (
+                {heroFeatures.map((item) => (
                   <span
                     key={item}
                     className={isDark ? "rounded-full border border-white/10 bg-[#142534] px-3 py-1.5 font-medium shadow-sm" : "rounded-full border border-black/5 bg-white px-3 py-1.5 font-medium shadow-sm"}
@@ -506,7 +502,7 @@ function Hero({ isDark }: { isDark: boolean }) {
               </div>
 
               <p className={isDark ? "mt-6 max-w-xl text-base leading-8 text-slate-300 md:text-lg" : "mt-6 max-w-xl text-base leading-8 text-zinc-600 md:text-lg"}>
-                Saudi IT Mart provides project-based ELV, ICT and low-current installation solutions for contractors, businesses and construction projects across Riyadh and Saudi Arabia.
+                {site?.hero_description || "Saudi IT Mart provides project-based ELV, ICT and low-current installation solutions for contractors, businesses and construction projects across Riyadh and Saudi Arabia."}
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -545,20 +541,20 @@ function Hero({ isDark }: { isDark: boolean }) {
 
             <div className="relative">
               <div className="absolute left-2 top-6 rounded-full border border-[#c8ed9e] bg-[#d9f6b0] px-3 py-2 text-xs font-semibold text-[#0f1720] shadow-sm sm:left-0">
-                7+ Years Experience
+                {heroStatBadges[0] || "7+ Years Experience"}
               </div>
               <div className="absolute right-2 top-24 rounded-full border border-[#c8ed9e] bg-[#d9f6b0] px-3 py-2 text-xs font-semibold text-[#0f1720] shadow-sm sm:right-0">
-                50+ Projects
+                {heroStatBadges[1] || "50+ Projects"}
               </div>
               <div className="absolute bottom-10 left-0 rounded-full border border-[#c8ed9e] bg-[#d9f6b0] px-3 py-2 text-xs font-semibold text-[#0f1720] shadow-sm">
-                100+ Skilled Manpower
+                {heroStatBadges[2] || "100+ Skilled Manpower"}
               </div>
               <div className="absolute bottom-0 right-4 rounded-full border border-[#c8ed9e] bg-[#d9f6b0] px-3 py-2 text-xs font-semibold text-[#0f1720] shadow-sm">
-                100% Client Satisfaction
+                {heroStatBadges[3] || "100% Client Satisfaction"}
               </div>
 
               <Image
-                src="/images/hero/hero-main.jpg"
+                src={content?.heroImage || "/images/hero/hero-main.jpg"}
                 alt="Saudi IT Mart engineering team in Riyadh"
                 width={1200}
                 height={1200}
@@ -573,13 +569,19 @@ function Hero({ isDark }: { isDark: boolean }) {
 }
 
 function ServicesSection({ isDark }: { isDark: boolean }) {
+  const content = usePublicContent();
+  const site = content?.site;
+  const cmsServices = (content?.services as Service[] | undefined) ?? allServices;
+  const displayedServices = cmsServices.filter((service) => service.category !== "Power Supply");
+  const displayedPowerSupplyServices = cmsServices.filter((service) => service.category === "Power Supply");
+  const displayedCategories = ["All", ...Array.from(new Set(cmsServices.map((service) => service.category)))];
   const [activeCategory, setActiveCategory] = useState("All");
   const [serviceSearch, setServiceSearch] = useState("");
   const [selectedService, setSelectedService] = useState<Service | null>(null);
 
   const filteredServices = useMemo(() => {
     const keyword = serviceSearch.trim().toLowerCase();
-    return services.filter((service) => {
+    return displayedServices.filter((service) => {
       const matchesCategory = activeCategory === "All" || service.category === activeCategory;
       const matchesSearch =
         !keyword ||
@@ -588,18 +590,18 @@ function ServicesSection({ isDark }: { isDark: boolean }) {
           .includes(keyword);
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, serviceSearch]);
+  }, [activeCategory, serviceSearch, displayedServices]);
 
   const showPowerSupply = useMemo(() => {
     const keyword = serviceSearch.trim().toLowerCase();
-    return powerSupplyServices.some((service) => {
+    return displayedPowerSupplyServices.some((service) => {
       const matchesCategory = activeCategory === "All" || service.category === activeCategory;
       const matchesSearch =
         !keyword ||
         `${service.title} ${service.description} ${service.category}`.toLowerCase().includes(keyword);
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, serviceSearch]);
+  }, [activeCategory, serviceSearch, displayedPowerSupplyServices]);
 
   return (
     <>
@@ -608,10 +610,10 @@ function ServicesSection({ isDark }: { isDark: boolean }) {
           <div className="mb-7 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#4a7b1d]">
-                Our Services
+                {site?.services_eyebrow || "Our Services"}
               </p>
               <h2 className="text-3xl font-black tracking-[-0.05em] text-[#111827] md:text-4xl">
-                Complete ELV, ICT and Low-Current Solutions
+                {site?.services_heading || "Complete ELV, ICT and Low-Current Solutions"}
               </h2>
             </div>
             <a
@@ -629,7 +631,7 @@ function ServicesSection({ isDark }: { isDark: boolean }) {
           </div>
 
           <div className="mb-8 flex flex-wrap items-center gap-3">
-            {serviceCategories.map((category) => (
+            {displayedCategories.map((category) => (
               <button
                 key={category}
                 type="button"
@@ -735,7 +737,7 @@ function ServicesSection({ isDark }: { isDark: boolean }) {
                 </h3>
               </div>
               <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5 xl:grid-cols-6">
-                {powerSupplyServices.map((service) => (
+                {displayedPowerSupplyServices.map((service) => (
                 <article
                   key={service.title}
                   className={[
@@ -807,6 +809,9 @@ function ServicesSection({ isDark }: { isDark: boolean }) {
 
 function AboutSection({ isDark }: { isDark: boolean }) {
   const [expanded, setExpanded] = useState(false);
+  const content = usePublicContent();
+  const site = content?.site;
+  const aboutStats = site?.about_stats ?? statItems;
 
   return (
     <section id="about" className="w-full">
@@ -817,7 +822,7 @@ function AboutSection({ isDark }: { isDark: boolean }) {
             isDark ? "border-white/10 bg-[#0f1a24]" : "border-black/5 bg-[#f7f7f4]",
           ].join(" ")}>
             <Image
-              src="/images/about/about-main.png"
+              src={content?.aboutImage || "/images/about/about-main.png"}
               alt="ELV and ICT infrastructure installation"
               width={960}
               height={780}
@@ -827,18 +832,18 @@ function AboutSection({ isDark }: { isDark: boolean }) {
 
           <div>
             <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-[#4a7b1d]">
-              About Saudi IT Mart
+              {site?.about_eyebrow || "About Saudi IT Mart"}
             </p>
             <h2 className={isDark ? "text-3xl font-black tracking-[-0.05em] text-white md:text-5xl" : "text-3xl font-black tracking-[-0.05em] text-[#111827] md:text-5xl"}>
-              Good infrastructure should feel invisible.
+              {site?.about_heading || "Good infrastructure should feel invisible."}
             </h2>
             <p className={isDark ? "mt-5 text-base leading-8 text-slate-300 md:text-lg" : "mt-5 text-base leading-8 text-zinc-600 md:text-lg"}>
-              Saudi IT Mart provides project-based ELV, ICT and low-current installation solutions for contractors, businesses and construction projects across Riyadh and Saudi Arabia. The company also supplies skilled manpower and can mobilize technical teams to execute projects independently.
+              {site?.about_description || "Saudi IT Mart provides project-based ELV, ICT and low-current installation solutions for contractors, businesses and construction projects across Riyadh and Saudi Arabia. The company also supplies skilled manpower and can mobilize technical teams to execute projects independently."}
             </p>
 
             {expanded ? (
               <p className={isDark ? "mt-4 text-base leading-8 text-slate-300 md:text-lg" : "mt-4 text-base leading-8 text-zinc-600 md:text-lg"}>
-                We support contractors, developers, and facility owners with trusted execution, quality controls, and responsive project delivery from planning through commissioning.
+                {site?.about_expanded_description || "We support contractors, developers, and facility owners with trusted execution, quality controls, and responsive project delivery from planning through commissioning."}
               </p>
             ) : null}
 
@@ -847,7 +852,7 @@ function AboutSection({ isDark }: { isDark: boolean }) {
             </button>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {statItems.map((item) => (
+              {aboutStats.map((item) => (
                 <div key={item.label} className={[
                   "rounded-[20px] border p-4 shadow-sm",
                   isDark ? "border-white/10 bg-[#142534]" : "border-black/5 bg-white",
@@ -868,6 +873,9 @@ function AboutSection({ isDark }: { isDark: boolean }) {
 
 function PartnerBrandsSection({ isDark }: { isDark: boolean }) {
   const [showAllBrands, setShowAllBrands] = useState(false);
+  const content = usePublicContent();
+  const site = content?.site;
+  const displayedBrands = content?.partnerBrands ?? partnerBrands;
 
   return (
     <>
@@ -876,10 +884,10 @@ function PartnerBrandsSection({ isDark }: { isDark: boolean }) {
           <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#4a7b1d]">
-                Our Partner Brands
+                {site?.brands_eyebrow || "Our Partner Brands"}
               </p>
               <h2 className={isDark ? "text-3xl font-black tracking-[-0.05em] text-white md:text-4xl" : "text-3xl font-black tracking-[-0.05em] text-[#111827] md:text-4xl"}>
-                We use trusted global brands for reliable and professional solutions.
+                {site?.brands_heading || "We use trusted global brands for reliable and professional solutions."}
               </h2>
             </div>
             <button type="button" onClick={() => setShowAllBrands(true)} className={isDark ? "inline-flex h-11 items-center rounded-full border border-white/10 bg-[#142534] px-5 text-sm font-semibold text-slate-100 shadow-sm transition hover:bg-[#1b2f40]" : "inline-flex h-11 items-center rounded-full border border-black/10 bg-white px-5 text-sm font-semibold text-zinc-800 shadow-sm transition hover:bg-zinc-50"}>
@@ -891,7 +899,7 @@ function PartnerBrandsSection({ isDark }: { isDark: boolean }) {
             "grid gap-3 rounded-[28px] border p-4 shadow-[0_15px_30px_rgba(17,24,39,0.04)] sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6",
             isDark ? "border-white/10 bg-[#0f1a24]" : "border-black/5 bg-white",
           ].join(" ")}>
-              {partnerBrands.slice(0, 6).map((brand) => (
+              {displayedBrands.slice(0, 6).map((brand) => (
               <div
                   key={brand.name}
                 className={[
@@ -916,7 +924,7 @@ function PartnerBrandsSection({ isDark }: { isDark: boolean }) {
               </button>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {partnerBrands.map((brand) => (
+              {displayedBrands.map((brand) => (
                 <div key={brand.name} className="flex min-h-[110px] items-center justify-center rounded-[20px] border border-black/5 bg-white px-4 py-6">
                   <Image src={brand.image} alt={`${brand.name} logo`} width={220} height={88} className="h-12 w-full object-contain" />
                 </div>
@@ -932,6 +940,9 @@ function PartnerBrandsSection({ isDark }: { isDark: boolean }) {
 function ProjectsSection({ isDark }: { isDark: boolean }) {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showAllProjects, setShowAllProjects] = useState(false);
+  const content = usePublicContent();
+  const site = content?.site;
+  const displayedProjects = (content?.projects as Project[] | undefined) ?? projects;
 
   return (
     <>
@@ -940,10 +951,10 @@ function ProjectsSection({ isDark }: { isDark: boolean }) {
           <div className="mb-7 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#4a7b1d]">
-                Completed Projects
+                {site?.projects_eyebrow || "Completed Projects"}
               </p>
               <h2 className={isDark ? "text-3xl font-black tracking-[-0.05em] text-white md:text-4xl" : "text-3xl font-black tracking-[-0.05em] text-[#111827] md:text-4xl"}>
-                Real Projects. Real Results.
+                {site?.projects_heading || "Real Projects. Real Results."}
               </h2>
             </div>
               <button type="button" onClick={() => setShowAllProjects(true)} className="inline-flex h-11 items-center rounded-full bg-[#0f1720] px-5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#1a242c]">
@@ -952,7 +963,7 @@ function ProjectsSection({ isDark }: { isDark: boolean }) {
           </div>
 
           <div className="grid min-w-0 gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {projects.map((project, index) => (
+            {displayedProjects.map((project, index) => (
               <article
                 key={project.name}
                 className={[
@@ -1036,7 +1047,7 @@ function ProjectsSection({ isDark }: { isDark: boolean }) {
               </button>
             </div>
             <div className="grid gap-4 lg:grid-cols-2">
-              {projects.map((project) => (
+              {displayedProjects.map((project) => (
                 <div key={project.name} className="rounded-[24px] border border-black/5 bg-white p-4">
                   <Image src={project.image} alt={project.name} width={900} height={420} className="mb-4 h-40 w-full rounded-[18px] object-cover" />
                   <div className="flex items-center justify-between gap-2 text-xs uppercase tracking-[0.12em] text-[#4a7b1d]">
@@ -1059,14 +1070,17 @@ function ProjectsSection({ isDark }: { isDark: boolean }) {
 }
 
 function ClientsSection({ isDark }: { isDark: boolean }) {
+  const content = usePublicContent();
+  const site = content?.site;
+  const displayedClients = content?.clientLogos ?? clientLogos;
   return (
     <section className="w-full">
       <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
         <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#4a7b1d]">
-          Our Clients & Partners
+          {site?.clients_eyebrow || "Our Clients & Partners"}
         </p>
         <h2 className={isDark ? "text-3xl font-black tracking-[-0.05em] text-white md:text-4xl" : "text-3xl font-black tracking-[-0.05em] text-[#111827] md:text-4xl"}>
-          Trusted by leading contractors, businesses and organizations across Saudi Arabia.
+          {site?.clients_heading || "Trusted by leading contractors, businesses and organizations across Saudi Arabia."}
         </h2>
 
         <div className={[
@@ -1074,7 +1088,7 @@ function ClientsSection({ isDark }: { isDark: boolean }) {
           isDark ? "border-white/10 bg-[#0f1a24]" : "border-black/5 bg-[#f7f7f4]",
         ].join(" ")}>
           <div className="client-marquee flex min-w-max gap-8 whitespace-nowrap text-3xl font-black tracking-[-0.05em] text-zinc-600">
-            {[...clientLogos, ...clientLogos].map((logo, index) => (
+            {[...displayedClients, ...displayedClients].map((logo, index) => (
               <span key={`${logo.name}-${index}`} className="inline-flex h-16 w-40 items-center px-4 py-2">
                 <Image src={logo.image} alt={`${logo.name} logo`} width={160} height={64} className="h-12 w-full object-contain" />
               </span>
@@ -1087,6 +1101,9 @@ function ClientsSection({ isDark }: { isDark: boolean }) {
 }
 
 function LocationSection({ isDark }: { isDark: boolean }) {
+  const content = usePublicContent();
+  const site = content?.site;
+  const contact = content?.contact;
   return (
     <section className="w-full">
       <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
@@ -1096,16 +1113,16 @@ function LocationSection({ isDark }: { isDark: boolean }) {
         ].join(" ")}>
           <div>
             <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#4a7b1d]">
-              Shop / Office Location
+              {site?.location_eyebrow || "Shop / Office Location"}
             </p>
             <h2 className={isDark ? "text-3xl font-black tracking-[-0.05em] text-white md:text-4xl" : "text-3xl font-black tracking-[-0.05em] text-[#111827] md:text-4xl"}>
-              Visit our Riyadh office or connect for onsite project support.
+              {site?.location_heading || "Visit our Riyadh office or connect for onsite project support."}
             </h2>
             <div className={isDark ? "mt-6 space-y-3 text-slate-300" : "mt-6 space-y-3 text-zinc-600"}>
               <p className="text-base">Saudi IT Mart</p>
-              <p className="text-base">Riyadh, Saudi Arabia</p>
-              <p className="text-base">Phone: +966 50 184 1918</p>
-              <p className="text-base">Email: info@sauditmart.com</p>
+              <p className="text-base">{contact?.office_address || "Riyadh, Saudi Arabia"}</p>
+              <p className="text-base">Phone: {contact?.phone_number || "+966 50 184 1918"}</p>
+              <p className="text-base">Email: {contact?.email || "info@sauditmart.com"}</p>
             </div>
           </div>
 
@@ -1117,7 +1134,7 @@ function LocationSection({ isDark }: { isDark: boolean }) {
               <div>
                 <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[#dff6b5] text-2xl">📍</div>
                 <p className={isDark ? "text-lg font-semibold text-white" : "text-lg font-semibold text-[#111827]"}>Saudi IT Mart Office</p>
-                <p className={isDark ? "mt-2 text-sm text-slate-300" : "mt-2 text-sm text-zinc-600"}>Serving contractors, developers, and IT projects throughout Riyadh and the Kingdom.</p>
+                <p className={isDark ? "mt-2 text-sm text-slate-300" : "mt-2 text-sm text-zinc-600"}>{site?.location_description || "Serving contractors, developers, and IT projects throughout Riyadh and the Kingdom."}</p>
               </div>
             </div>
           </div>
@@ -1128,6 +1145,9 @@ function LocationSection({ isDark }: { isDark: boolean }) {
 }
 
 function CtaSection() {
+  const content = usePublicContent();
+  const site = content?.site;
+  const whatsappUrl = getWhatsappUrl(content);
   const [formData, setFormData] = useState(initialForm);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [formStatus, setFormStatus] = useState("");
@@ -1190,10 +1210,10 @@ function CtaSection() {
           <div className="grid items-center gap-8 lg:grid-cols-[1fr_0.9fr]">
             <div>
               <h2 className="text-3xl font-black tracking-[-0.05em] text-white md:text-5xl">
-                Have a New Project?
+                {site?.cta_heading || "Have a New Project?"}
               </h2>
               <p className="mt-4 max-w-xl text-base leading-7 text-zinc-300">
-                Send us your project details or manpower requirements. Our team will get back to you shortly.
+                {site?.cta_description || "Send us your project details or manpower requirements. Our team will get back to you shortly."}
               </p>
               <div className="mt-6 flex flex-wrap gap-4">
                 <a href="#project-cta" onClick={(event) => { event.preventDefault(); document.getElementById("project-cta")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} className="inline-flex h-12 items-center rounded-full bg-[#aef06c] px-6 text-sm font-semibold text-[#0f1720] transition hover:-translate-y-0.5">
@@ -1288,6 +1308,10 @@ function CtaSection() {
 }
 
 function Footer({ isDark }: { isDark: boolean }) {
+  const content = usePublicContent();
+  const contact = content?.contact;
+  const site = content?.site;
+  const whatsappUrl = getWhatsappUrl(content);
   const links = [
     { label: "Home", href: "#home" },
     { label: "About Us", href: "#about" },
@@ -1310,11 +1334,11 @@ function Footer({ isDark }: { isDark: boolean }) {
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div>
               <div className="flex items-center gap-3">
-                <Image src="/images/logo/site-logo.svg" alt="Saudi IT Mart logo" width={40} height={40} className="rounded-xl" />
+                <Image src={content?.mainLogo || "/images/logo/site-logo.svg"} alt="Saudi IT Mart logo" width={40} height={40} className="rounded-xl" />
                 <div className={isDark ? "text-xl font-black tracking-tight text-white" : "text-xl font-black tracking-tight text-[#111827]"}>Saudi IT Mart</div>
               </div>
               <p className={isDark ? "mt-4 text-sm leading-7 text-slate-300" : "mt-4 text-sm leading-7 text-zinc-600"}>
-                Project-based ELV, ICT and low-current solutions across Saudi Arabia.
+                {site?.footer_description || "Project-based ELV, ICT and low-current solutions across Saudi Arabia."}
               </p>
             </div>
 
@@ -1341,10 +1365,10 @@ function Footer({ isDark }: { isDark: boolean }) {
             <div>
               <h3 className={isDark ? "text-lg font-bold text-white" : "text-lg font-bold text-[#111827]"}>Contact</h3>
               <ul className={isDark ? "mt-4 space-y-2 text-sm text-slate-300" : "mt-4 space-y-2 text-sm text-zinc-600"}>
-                <li>Riyadh, Saudi Arabia</li>
-                <li><a href="tel:+966501841918" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>+966 50 184 1918</a></li>
-                <li><a href="mailto:info@sauditmart.com" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>info@sauditmart.com</a></li>
-                <li><a href="http://www.sauditmart.com" target="_blank" rel="noreferrer" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>www.sauditmart.com</a></li>
+                <li>{contact?.office_address || "Riyadh, Saudi Arabia"}</li>
+                <li><a href={`tel:${contact?.phone_number || "+966501841918"}`} className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>{contact?.phone_number || "+966 50 184 1918"}</a></li>
+                <li><a href={`mailto:${contact?.email || "info@sauditmart.com"}`} className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>{contact?.email || "info@sauditmart.com"}</a></li>
+                <li><a href={contact?.website_url || "http://www.sauditmart.com"} target="_blank" rel="noreferrer" className={isDark ? "hover:text-white" : "hover:text-[#0f1720]"}>{contact?.website_url || "www.sauditmart.com"}</a></li>
               </ul>
             </div>
 
@@ -1352,9 +1376,9 @@ function Footer({ isDark }: { isDark: boolean }) {
               <h3 className={isDark ? "text-lg font-bold text-white" : "text-lg font-bold text-[#111827]"}>Follow Us</h3>
               <div className="mt-4 flex gap-3">
                 {[
-                  { label: "in", href: "https://www.linkedin.com" },
-                  { label: "f", href: "https://www.facebook.com" },
-                  { label: "yt", href: "https://www.youtube.com" },
+                  { label: "in", href: contact?.linkedin_url || "https://www.linkedin.com" },
+                  { label: "f", href: contact?.facebook_url || "https://www.facebook.com" },
+                  { label: "yt", href: contact?.youtube_url || "https://www.youtube.com" },
                   { label: "wa", href: whatsappUrl },
                 ].map((social) => (
                   <a key={social.label} href={social.href} target="_blank" rel="noreferrer" className={isDark ? "flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#142534] text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5" : "flex h-10 w-10 items-center justify-center rounded-full border border-black/5 bg-white text-sm font-bold text-[#0f1720] shadow-sm transition hover:-translate-y-0.5"}>
@@ -1380,7 +1404,20 @@ function Footer({ isDark }: { isDark: boolean }) {
 
 export default function Home() {
   const [theme, setTheme] = useState<ThemeMode>("light");
+  const [cmsContent, setCmsContent] = useState<PublicContent | null>(null);
   const themeHydrated = useRef(false);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/public-content", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : null)
+      .then((payload: PublicContent | null) => {
+        if (active && payload?.site) setCmsContent(payload);
+      })
+      .catch(() => undefined);
+
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -1412,23 +1449,25 @@ export default function Home() {
   const isDark = theme === "dark";
 
   return (
-    <main className={isDark ? "min-h-screen w-full bg-[#09151d] text-white" : "min-h-screen w-full bg-[#dfe1dc] text-[#111827]"}>
-      <div className="w-full">
-        <div className={isDark ? "border border-white/10 bg-[#0b1821] shadow-[0_24px_60px_rgba(2,6,23,0.32)]" : "border border-black/5 bg-[#f1f2ee] shadow-[0_24px_60px_rgba(15,23,32,0.06)]"}>
-          <Header theme={theme} onToggleTheme={() => setTheme((current) => (current === "dark" ? "light" : "dark"))} />
-          <Hero isDark={isDark} />
-          <ServicesSection isDark={isDark} />
-          <AboutSection isDark={isDark} />
-          <div id="partners">
-            <PartnerBrandsSection isDark={isDark} />
+    <PublicContentContext.Provider value={cmsContent}>
+      <main className={isDark ? "min-h-screen w-full bg-[#09151d] text-white" : "min-h-screen w-full bg-[#dfe1dc] text-[#111827]"}>
+        <div className="w-full">
+          <div className={isDark ? "border border-white/10 bg-[#0b1821] shadow-[0_24px_60px_rgba(2,6,23,0.32)]" : "border border-black/5 bg-[#f1f2ee] shadow-[0_24px_60px_rgba(15,23,32,0.06)]"}>
+            <Header theme={theme} onToggleTheme={() => setTheme((current) => (current === "dark" ? "light" : "dark"))} />
+            <Hero isDark={isDark} />
+            <ServicesSection isDark={isDark} />
+            <AboutSection isDark={isDark} />
+            <div id="partners">
+              <PartnerBrandsSection isDark={isDark} />
+            </div>
+            <ProjectsSection isDark={isDark} />
+            <LocationSection isDark={isDark} />
+            <ClientsSection isDark={isDark} />
+            <CtaSection />
+            <Footer isDark={isDark} />
           </div>
-          <ProjectsSection isDark={isDark} />
-          <LocationSection isDark={isDark} />
-          <ClientsSection isDark={isDark} />
-          <CtaSection />
-          <Footer isDark={isDark} />
         </div>
-      </div>
-    </main>
+      </main>
+    </PublicContentContext.Provider>
   );
 }
