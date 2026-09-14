@@ -81,9 +81,17 @@ textarea {
 }
 
 .client-marquee {
+  display: flex;
+  width: max-content;
   animation: marquee 22s linear infinite;
 }
 
+.client-marquee-group {
+  display: flex;
+  flex: none;
+  gap: 2rem;
+  padding-right: 2rem;
+}
 /* Keep the older modal/card surfaces readable when the shared theme changes. */
 .dark-theme [class~="bg-white"],
 .dark-theme [class~="bg-white/80"],
@@ -115,12 +123,22 @@ textarea {
   opacity: 1;
 }
 
-@media (max-width: 639px) {
-  .client-marquee {
-    gap: 1rem;
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 
-  .client-marquee > span {
+  .client-marquee {
+    animation: none;
+  }
+}
+@media (max-width: 639px) {
+  .client-marquee-group {
+    gap: 1rem;
+    padding-right: 1rem;
+  }
+
+  .client-marquee-group > span {
     width: 8.5rem;
   }
 }
@@ -131,15 +149,5 @@ textarea {
   }
   to {
     transform: translateX(-50%);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  .client-marquee {
-    animation: none;
   }
 }

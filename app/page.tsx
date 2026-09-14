@@ -463,7 +463,6 @@ function Hero({ isDark }: { isDark: boolean }) {
   const content = usePublicContent();
   const site = content?.site;
   const heroFeatures = site?.hero_features ?? ["Skilled Teams", "Reliable Execution", "On-Time Delivery"];
-  const heroStatBadges = site?.hero_stat_badges ?? ["7+ Years Experience", "50+ Projects", "100+ Skilled Manpower", "100% Client Satisfaction"];
   const scrollToCta = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     document.getElementById("project-cta")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -540,18 +539,6 @@ function Hero({ isDark }: { isDark: boolean }) {
             </div>
 
             <div className="relative">
-              <div className="absolute left-2 top-6 rounded-full border border-[#c8ed9e] bg-[#d9f6b0] px-3 py-2 text-xs font-semibold text-[#0f1720] shadow-sm sm:left-0">
-                {heroStatBadges[0] || "7+ Years Experience"}
-              </div>
-              <div className="absolute right-2 top-24 rounded-full border border-[#c8ed9e] bg-[#d9f6b0] px-3 py-2 text-xs font-semibold text-[#0f1720] shadow-sm sm:right-0">
-                {heroStatBadges[1] || "50+ Projects"}
-              </div>
-              <div className="absolute bottom-10 left-0 rounded-full border border-[#c8ed9e] bg-[#d9f6b0] px-3 py-2 text-xs font-semibold text-[#0f1720] shadow-sm">
-                {heroStatBadges[2] || "100+ Skilled Manpower"}
-              </div>
-              <div className="absolute bottom-0 right-4 rounded-full border border-[#c8ed9e] bg-[#d9f6b0] px-3 py-2 text-xs font-semibold text-[#0f1720] shadow-sm">
-                {heroStatBadges[3] || "100% Client Satisfaction"}
-              </div>
 
               <Image
                 src={content?.heroImage || "/images/hero/hero-main.jpg"}
@@ -900,7 +887,7 @@ function PartnerBrandsSection({ isDark }: { isDark: boolean }) {
             "grid gap-3 rounded-[28px] border p-4 shadow-[0_15px_30px_rgba(17,24,39,0.04)] sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6",
             isDark ? "border-white/10 bg-[#0f1a24]" : "border-black/5 bg-white",
           ].join(" ")}>
-              {displayedBrands.slice(0, 6).map((brand) => (
+              {displayedBrands.map((brand) => (
               <div
                   key={brand.name}
                 className={[
@@ -1088,12 +1075,21 @@ function ClientsSection({ isDark }: { isDark: boolean }) {
           "mt-8 overflow-hidden rounded-[28px] border p-5 shadow-[0_15px_30px_rgba(17,24,39,0.04)] [contain:paint]",
           isDark ? "border-white/10 bg-[#0f1a24]" : "border-black/5 bg-[#f7f7f4]",
         ].join(" ")}>
-          <div className="client-marquee flex min-w-max gap-8 whitespace-nowrap text-3xl font-black tracking-[-0.05em] text-zinc-600">
-            {[...displayedClients, ...displayedClients].map((logo, index) => (
-              <span key={`${logo.name}-${index}`} className="inline-flex h-16 w-40 items-center px-4 py-2">
-                <Image src={logo.image} alt={`${logo.name} logo`} width={160} height={64} className="h-12 w-full object-contain" />
-              </span>
-            ))}
+          <div className="client-marquee">
+            <div className="client-marquee-group">
+              {displayedClients.map((logo) => (
+                <span key={logo.name} className="inline-flex h-16 w-40 shrink-0 items-center px-4 py-2">
+                  <Image src={logo.image} alt={`${logo.name} logo`} width={160} height={64} className="h-12 w-full object-contain" />
+                </span>
+              ))}
+            </div>
+            <div className="client-marquee-group" aria-hidden="true">
+              {displayedClients.map((logo, index) => (
+                <span key={`${logo.name}-${index}`} className="inline-flex h-16 w-40 shrink-0 items-center px-4 py-2">
+                  <Image src={logo.image} alt="" width={160} height={64} className="h-12 w-full object-contain" />
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
