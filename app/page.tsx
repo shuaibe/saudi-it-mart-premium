@@ -572,9 +572,10 @@ function ServicesSection({ isDark }: { isDark: boolean }) {
   const content = usePublicContent();
   const site = content?.site;
   const cmsServices = (content?.services as Service[] | undefined) ?? allServices;
-  const displayedServices = cmsServices.filter((service) => service.category !== "Power Supply");
-  const displayedPowerSupplyServices = cmsServices.filter((service) => service.category === "Power Supply");
-  const displayedCategories = ["All", ...Array.from(new Set(cmsServices.map((service) => service.category)))];
+  const orderedServices = cmsServices.map((service, index) => ({ ...service, serial: String(index + 1).padStart(2, "0") }));
+  const displayedServices = orderedServices.filter((service) => service.category !== "Power Supply");
+  const displayedPowerSupplyServices = orderedServices.filter((service) => service.category === "Power Supply");
+  const displayedCategories = ["All", ...Array.from(new Set(orderedServices.map((service) => service.category)))];
   const [activeCategory, setActiveCategory] = useState("All");
   const [serviceSearch, setServiceSearch] = useState("");
   const [selectedService, setSelectedService] = useState<Service | null>(null);

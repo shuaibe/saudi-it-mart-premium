@@ -27,13 +27,3 @@ export function getSupabaseServiceRoleKey() {
 
   return serviceRoleKey;
 }
-
-export function getAdminEmail() {
-  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-
-  if (!adminEmail) {
-    throw new Error("ADMIN_EMAIL is required to protect the admin panel.");
-  }
-
-  return adminEmail;
-}

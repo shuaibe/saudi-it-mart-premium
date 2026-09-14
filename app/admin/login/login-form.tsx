@@ -12,7 +12,7 @@ export function LoginForm() {
   return (
     <form action={formAction} className="space-y-5 rounded-3xl border border-black/10 bg-white p-7 shadow-[0_20px_60px_rgba(15,23,32,0.1)]">
       <div>
-        <label htmlFor="email" className="mb-2 block text-sm font-semibold text-[#111827]">Owner email</label>
+        <label htmlFor="email" className="mb-2 block text-sm font-semibold text-[#111827]">Admin email</label>
         <input id="email" name="email" type="email" autoComplete="email" required className="h-12 w-full rounded-xl border border-black/10 px-4 text-sm outline-none focus:border-[#83c94d]" />
       </div>
       <div>

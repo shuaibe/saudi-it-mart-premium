@@ -48,6 +48,16 @@ create table if not exists public.contact_settings (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.admin_users (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null unique references auth.users(id) on delete cascade,
+  email text,
+  role text not null default 'admin' check (role = 'admin'),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists admin_users_user_id_idx on public.admin_users (user_id);
 create table if not exists public.media_assets (
   id uuid primary key default gen_random_uuid(),
   name text not null,
@@ -108,11 +118,18 @@ create table if not exists public.logo_assets (
 
 alter table public.site_settings enable row level security;
 alter table public.contact_settings enable row level security;
+alter table public.admin_users enable row level security;
 alter table public.media_assets enable row level security;
 alter table public.services enable row level security;
 alter table public.projects enable row level security;
 alter table public.logo_assets enable row level security;
 
+
+-- An authenticated user can discover only their own membership row. All admin
+-- mutations are authorized in server actions with auth.uid() and use the
+-- server-only service-role client after that check.
+create policy "Admins can read their own membership" on public.admin_users
+  for select to authenticated using ((select auth.uid()) = user_id);
 create policy "Public can read site settings" on public.site_settings for select using (true);
 create policy "Public can read contact settings" on public.contact_settings for select using (true);
 create policy "Public can read media assets" on public.media_assets for select using (true);
@@ -120,17 +137,6 @@ create policy "Public can read services" on public.services for select using (is
 create policy "Public can read projects" on public.projects for select using (is_visible);
 create policy "Public can read logos" on public.logo_assets for select using (is_visible);
 
--- The application verifies ADMIN_EMAIL before every mutation. These policies allow
--- that authenticated session to perform the admin panel's writes and uploads.
-create policy "Authenticated admins can insert site settings" on public.site_settings for insert to authenticated with check (true);
-create policy "Authenticated admins can update site settings" on public.site_settings for update to authenticated using (true) with check (true);
-create policy "Authenticated admins can insert contact settings" on public.contact_settings for insert to authenticated with check (true);
-create policy "Authenticated admins can update contact settings" on public.contact_settings for update to authenticated using (true) with check (true);
-create policy "Authenticated admins can insert media assets" on public.media_assets for insert to authenticated with check (true);
-create policy "Authenticated admins can update media assets" on public.media_assets for update to authenticated using (true) with check (true);
-create policy "Authenticated admins can update services" on public.services for update to authenticated using (true) with check (true);
-create policy "Authenticated admins can update projects" on public.projects for update to authenticated using (true) with check (true);
-create policy "Authenticated admins can update logos" on public.logo_assets for update to authenticated using (true) with check (true);
 
 create or replace function public.touch_updated_at()
 returns trigger language plpgsql as $$
@@ -140,8 +146,11 @@ begin
 end;
 $$;
 
+create trigger admin_users_updated_at before update on public.admin_users for each row execute function public.touch_updated_at();
 create trigger site_settings_updated_at before update on public.site_settings for each row execute function public.touch_updated_at();
 grant all on table public.logo_assets to service_role;
+grant all on table public.admin_users to service_role;
+grant select on table public.admin_users to authenticated;
 
 -- Server-side seed jobs use the secret/service-role key. Keep these grants
 -- alongside RLS; service_role bypasses RLS but still requires table privileges.
@@ -152,7 +161,9 @@ grant all on table public.services to service_role;
 grant all on table public.projects to service_role;
 create trigger contact_settings_updated_at before update on public.contact_settings for each row execute function public.touch_updated_at();
 -- Browser clients retain public reads only. Admin mutations are performed by
--- server actions after ADMIN_EMAIL verification using the service-role client.
+-- server actions after authenticated admin_users membership verification.
+revoke all on table public.admin_users from anon;
+revoke insert, update, delete on table public.admin_users from authenticated;
 revoke insert, update, delete on table public.site_settings from anon, authenticated;
 revoke insert, update, delete on table public.contact_settings from anon, authenticated;
 revoke insert, update, delete on table public.media_assets from anon, authenticated;

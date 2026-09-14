@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getAdminEmail, isSupabaseConfigured } from "./lib/supabase/env";
+import { isAdminUser } from "./lib/admin/authorization";
+import { isSupabaseConfigured } from "./lib/supabase/env";
 import { updateSupabaseSession } from "./lib/supabase/proxy";
 
 export async function proxy(request: NextRequest) {
@@ -9,7 +10,7 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
-  if (!isSupabaseConfigured() || !process.env.ADMIN_EMAIL) {
+  if (!isSupabaseConfigured()) {
     return NextResponse.redirect(new URL("/admin/login?error=not-configured", request.url));
   }
 
@@ -24,7 +25,7 @@ export async function proxy(request: NextRequest) {
   });
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user || user.email?.toLowerCase() !== getAdminEmail()) {
+  if (!user || !(await isAdminUser(supabase, user.id))) {
     return NextResponse.redirect(new URL("/admin/login", request.url));
   }
 

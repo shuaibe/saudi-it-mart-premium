@@ -12,7 +12,7 @@ export default function AdminLoginPage() {
           <p className="mt-2 text-sm text-zinc-600">Sign in to update the approved website content.</p>
         </div>
         <LoginForm />
-        <p className="mt-5 text-center text-xs text-zinc-500">Owner access only. Registration is disabled.</p>
+        <p className="mt-5 text-center text-xs text-zinc-500">Admin access only. Registration is disabled.</p>
       </div>
     </main>
   );
